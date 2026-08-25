@@ -397,7 +397,7 @@ export default function ReportsPage() {
                 exportingExcel ||
                 exportingPDF
               }
-              className="w-full min-h-28 bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white rounded-2xl shadow-lg px-10 py-7 transition"
+              className="cb-export-btn cb-export-excel w-full min-h-28 text-white rounded-2xl px-10 py-7 transition"
             >
               <div className="text-3xl font-bold mb-2">
                 Excel
@@ -419,7 +419,7 @@ export default function ReportsPage() {
                 exportingExcel ||
                 exportingPDF
               }
-              className="w-full min-h-28 bg-red-600 hover:bg-red-700 disabled:bg-gray-400 text-white rounded-2xl shadow-lg px-10 py-7 transition"
+              className="cb-export-btn cb-export-pdf w-full min-h-28 text-white rounded-2xl px-10 py-7 transition"
             >
               <div className="text-3xl font-bold mb-2">
                 PDF
