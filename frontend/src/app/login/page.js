@@ -4,6 +4,15 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { apiFetch } from "../../lib/api";
 
+function BrandIcon() {
+  return (
+    <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M7 17.5h9.5a4.5 4.5 0 0 0 .8-8.93A6 6 0 0 0 6 8.5 4.5 4.5 0 0 0 7 17.5Z" />
+      <path d="M9.5 12.5h5M12 10v5" />
+    </svg>
+  );
+}
+
 export default function LoginPage() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -41,43 +50,62 @@ export default function LoginPage() {
   };
 
   return (
-    <main className="min-h-screen flex items-center justify-center bg-gray-100 p-4">
-      <div className="bg-white w-full max-w-md p-8 rounded-xl shadow-lg">
-        <h1 className="text-3xl font-bold text-center mb-2">CashBox Cloud</h1>
-        <p className="text-center text-gray-500 mb-6">تسجيل الدخول</p>
+    <main className="cb-login-page" dir="rtl">
+      <section className="cb-login-brand">
+        <div className="cb-login-logo">
+          <div className="cb-brand-mark"><BrandIcon /></div>
+          <h1>CashBox Cloud</h1>
+        </div>
+        <p className="cb-login-tagline">إدارة مالية ذكية وآمنة لصندوق شركتك</p>
+        <p className="cb-login-copy">
+          تابع الإيرادات والمصروفات والأرصدة والتقارير من واجهة عربية واضحة بهوية مالية احترافية.
+        </p>
+      </section>
 
-        <form onSubmit={handleLogin} className="space-y-4">
-          <input
-            type="text"
-            placeholder="اسم المستخدم"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            className="w-full border rounded-lg p-3"
-            autoComplete="username"
-            required
-          />
+      <section className="cb-login-form-side">
+        <div className="cb-login-card">
+          <h2>تسجيل الدخول</h2>
+          <p className="subtitle">أدخل بيانات حسابك للوصول إلى النظام</p>
 
-          <input
-            type="password"
-            placeholder="كلمة المرور"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="w-full border rounded-lg p-3"
-            autoComplete="current-password"
-            required
-          />
+          <form onSubmit={handleLogin}>
+            <div className="cb-field">
+              <label htmlFor="username">اسم المستخدم</label>
+              <input
+                id="username"
+                type="text"
+                placeholder="اسم المستخدم"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                className="cb-input"
+                autoComplete="username"
+                required
+              />
+            </div>
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-blue-600 disabled:bg-gray-400 text-white p-3 rounded-lg"
-          >
-            {loading ? "جاري تسجيل الدخول..." : "تسجيل الدخول"}
-          </button>
+            <div className="cb-field">
+              <label htmlFor="password">كلمة المرور</label>
+              <input
+                id="password"
+                type="password"
+                placeholder="كلمة المرور"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="cb-input"
+                autoComplete="current-password"
+                required
+              />
+            </div>
 
-          {message && <p className="text-center text-red-600">{message}</p>}
-        </form>
-      </div>
+            <button type="submit" disabled={loading} className="cb-login-button">
+              {loading ? "جاري تسجيل الدخول..." : "تسجيل الدخول"}
+            </button>
+
+            {message && <p className="cb-login-error">{message}</p>}
+          </form>
+
+          <div className="cb-login-secure">🔒 اتصال آمن ببيانات CashBox Cloud</div>
+        </div>
+      </section>
     </main>
   );
 }

@@ -2,10 +2,40 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+
+const Icon = ({ name }) => {
+  const common = {
+    fill: "none",
+    viewBox: "0 0 24 24",
+    stroke: "currentColor",
+    strokeWidth: 1.8,
+    strokeLinecap: "round",
+    strokeLinejoin: "round",
+    "aria-hidden": "true",
+  };
+
+  const icons = {
+    dashboard: <><path d="M3 12 12 4l9 8"/><path d="M5.5 10.5V20h13v-9.5"/><path d="M9.5 20v-6h5v6"/></>,
+    transactions: <><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M7 9h10M7 13h6M17 13h.01"/></>,
+    add: <><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></>,
+    reports: <><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></>,
+    statement: <><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></>,
+    users: <><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></>,
+    settings: <><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.8 1.8 0 0 0 .36 1.98l.06.06-2.78 2.78-.06-.06A1.8 1.8 0 0 0 15 19.4a1.8 1.8 0 0 0-1 .6 1.8 1.8 0 0 0-.4 1.14V21H9.6v-.09A1.8 1.8 0 0 0 8.4 19.4a1.8 1.8 0 0 0-1.98.36l-.06.06-2.78-2.78.06-.06A1.8 1.8 0 0 0 4 15a1.8 1.8 0 0 0-.6-1 1.8 1.8 0 0 0-1.14-.4H2V9.6h.09A1.8 1.8 0 0 0 4 8.4a1.8 1.8 0 0 0-.36-1.98l-.06-.06 2.78-2.78.06.06A1.8 1.8 0 0 0 8.4 4a1.8 1.8 0 0 0 1-.6A1.8 1.8 0 0 0 9.8 2.26V2h4v.09A1.8 1.8 0 0 0 15 4a1.8 1.8 0 0 0 1.98-.36l.06-.06 2.78 2.78-.06.06A1.8 1.8 0 0 0 19.4 8.4a1.8 1.8 0 0 0 .6 1 1.8 1.8 0 0 0 1.14.4H21v4h-.09A1.8 1.8 0 0 0 19.4 15Z"/></>,
+    inventory: <><path d="m21 8-9-5-9 5 9 5 9-5Z"/><path d="m3 8 9 5 9-5M3 8v8l9 5 9-5V8M12 13v8"/></>,
+    consumption: <><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></>,
+    logout: <><path d="M10 17l5-5-5-5M15 12H3"/><path d="M21 19V5a2 2 0 0 0-2-2h-6"/></>,
+    shield: <><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/><path d="m9 12 2 2 4-4"/></>,
+    brand: <><path d="M7 17.5h9.5a4.5 4.5 0 0 0 .8-8.93A6 6 0 0 0 6 8.5 4.5 4.5 0 0 0 7 17.5Z"/><path d="M9.5 12.5h5M12 10v5"/></>,
+  };
+
+  return <svg {...common}>{icons[name]}</svg>;
+};
 
 export default function Sidebar() {
   const [role, setRole] = useState("");
+  const pathname = usePathname();
   const router = useRouter();
 
   useEffect(() => {
@@ -19,64 +49,66 @@ export default function Sidebar() {
     router.push("/login");
   };
 
-  return (
-    <aside
-      dir="rtl"
-      className="w-64 shrink-0 bg-white shadow min-h-screen p-4 border-l"
-    >
-      <h2 className="text-2xl font-bold mb-8">CashBox Cloud</h2>
+  const isActive = (href) => pathname === href;
 
-      <nav className="space-y-3">
-        <Link href="/dashboard" className="block p-3 rounded-lg hover:bg-gray-100">
-          لوحة التحكم
-        </Link>
+  const NavLink = ({ href, icon, children }) => (
+    <Link href={href} className={`cb-nav-link ${isActive(href) ? "active" : ""}`}>
+      <Icon name={icon} />
+      <span>{children}</span>
+    </Link>
+  );
+
+  return (
+    <aside dir="rtl" className="cb-sidebar">
+      <div className="cb-brand">
+        <div className="cb-brand-mark"><Icon name="brand" /></div>
+        <div>
+          <h2 className="cb-brand-title">CashBox Cloud</h2>
+          <div className="cb-brand-subtitle">إدارة مالية ذكية وآمنة</div>
+        </div>
+      </div>
+
+      <nav className="cb-nav">
+        <NavLink href="/dashboard" icon="dashboard">لوحة التحكم</NavLink>
 
         {(role === "CEO" || role === "MANAGER" || role === "ACCOUNTANT") && (
           <>
-            <Link href="/transactions/list" className="block p-3 rounded-lg hover:bg-gray-100">
-              العمليات المالية
-            </Link>
-            <Link href="/transactions" className="block p-3 rounded-lg hover:bg-gray-100">
-              إضافة عملية
-            </Link>
-            <Link href="/reports" className="block p-3 rounded-lg hover:bg-gray-100">
-              التقارير
-            </Link>
-            <Link href="/cashbox-statement" className="block p-3 rounded-lg hover:bg-gray-100">
-              كشف حساب الصندوق
-            </Link>
+            <NavLink href="/transactions/list" icon="transactions">العمليات المالية</NavLink>
+            <NavLink href="/transactions" icon="add">إضافة عملية</NavLink>
+            <NavLink href="/reports" icon="reports">التقارير</NavLink>
+            <NavLink href="/cashbox-statement" icon="statement">كشف حساب الصندوق</NavLink>
           </>
         )}
 
         {(role === "CEO" || role === "MANAGER") && (
           <>
-            <Link href="/users" className="block p-3 rounded-lg hover:bg-gray-100">
-              المستخدمون
-            </Link>
-            <Link href="/settings" className="block p-3 rounded-lg hover:bg-gray-100">
-              الإعدادات
-            </Link>
+            <div className="cb-nav-separator" />
+            <NavLink href="/users" icon="users">المستخدمون</NavLink>
+            <NavLink href="/settings" icon="settings">الإعدادات</NavLink>
           </>
         )}
 
         {(role === "CEO" || role === "MANAGER" || role === "STORE_KEEPER") && (
           <>
-            <Link href="/inventory" className="block p-3 rounded-lg hover:bg-gray-100">
-              المخزون الحالي
-            </Link>
-            <Link href="/inventory/consumption" className="block p-3 rounded-lg hover:bg-gray-100">
-              الاستهلاك اليومي
-            </Link>
+            <div className="cb-nav-separator" />
+            <NavLink href="/inventory" icon="inventory">المخزون الحالي</NavLink>
+            <NavLink href="/inventory/consumption" icon="consumption">الاستهلاك اليومي</NavLink>
           </>
         )}
-
-        <button
-          onClick={logout}
-          className="w-full text-right bg-red-600 text-white p-3 rounded-lg mt-6"
-        >
-          تسجيل الخروج
-        </button>
       </nav>
+
+      <div className="cb-security-card">
+        <div className="cb-security-icon"><Icon name="shield" /></div>
+        <div className="cb-security-title">صندوقك في أمان</div>
+        <div className="cb-security-text">
+          هوية مالية احترافية مع صلاحيات دخول وحماية لبيانات الصندوق.
+        </div>
+      </div>
+
+      <button type="button" onClick={logout} className="cb-logout">
+        <Icon name="logout" />
+        <span>تسجيل الخروج</span>
+      </button>
     </aside>
   );
 }
