@@ -1,4 +1,4 @@
-# CashBox Cloud — Railway Ready
+# CashBox Cloud — Railway  Ready
 
 This repository is prepared to deploy to Railway as **one service from the repository root**.
 
