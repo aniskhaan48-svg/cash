@@ -8,8 +8,8 @@ backend/.env.example
 backend/.gitignore
 backend/package-lock.json
 backend/package.json
-backend/prisma.config.ts
 backend/prisma/schema.prisma
+backend/prisma.config.ts
 backend/railway.json
 backend/src/app.js
 backend/src/config/prisma.js
@@ -64,4 +64,7 @@ frontend/src/app/transactions/page.js
 frontend/src/app/users/page.js
 frontend/src/components/Sidebar.js
 frontend/src/lib/api.js
+package-lock.json
 package.json
+railway.json
+scripts/start.js

@@ -1,99 +1,54 @@
-# CashBox Cloud — GitHub + Railway Ready
+# CashBox Cloud — Railway Ready
 
-This repository is prepared as a monorepo with two independently deployable Railway services:
+This repository is prepared to deploy to Railway as **one service from the repository root**.
 
-- `backend/` — Express + Prisma + TiDB Cloud API
-- `frontend/` — Next.js UI
+- `frontend/` — Next.js UI (public Railway service)
+- `backend/` — Express + Prisma + TiDB Cloud API (runs internally in the same container)
+- `scripts/start.js` — starts both applications and connects the frontend proxy to the internal backend
+- `railway.json` — root Railway configuration
 
-The frontend no longer exposes a public backend URL in browser code. It sends requests to a Next.js server-side proxy at `/api/backend/*`, and that proxy reads the private `BACKEND_URL` environment variable at runtime.
+The browser calls `/api/backend/*` on the Next.js app. The Next.js server proxy then calls the local Express backend. No separate public backend domain is required.
 
-## 1. Upload to GitHub
+## Railway deployment
 
-Create a new empty GitHub repository, then from this project root run:
-
-```bash
-git init
-git add .
-git commit -m "Prepare CashBox Cloud for Railway"
-git branch -M main
-git remote add origin https://github.com/YOUR-USERNAME/YOUR-REPOSITORY.git
-git push -u origin main
-```
-
-Do not commit `.env` files. Only `.env.example` belongs in GitHub.
-
-## 2. Deploy the backend on Railway
-
-Create a Railway project and choose **Deploy from GitHub repo**. Create the first service using this repository and set its **Root Directory** to:
+1. Push this repository to GitHub.
+2. In Railway choose **Deploy from GitHub repo** and select the repository.
+3. Leave **Root Directory empty**. Do not set `/backend` or `/frontend`.
+4. Add these Variables:
 
 ```text
-/backend
+DATABASE_URL=<your TiDB/MySQL Prisma connection string>
+JWT_SECRET=<a long random secret, 32+ characters>
+NODE_ENV=production
 ```
 
-Railway will read `backend/railway.json`.
+5. Do not manually create `PORT`; Railway provides it.
+6. Do not set `BACKEND_URL` for the normal single-service deployment; the launcher sets it automatically to the internal backend.
+7. Redeploy the latest commit.
+8. In **Settings > Networking**, generate a public domain and open `/login`.
 
-Add these backend variables in Railway:
+Railway reads the root `railway.json` and uses:
 
 ```text
-DATABASE_URL=<your TiDB Cloud mysql:// connection string>
-JWT_SECRET=<a long random secret>
-FRONTEND_URLS=http://localhost:3000
+Build: npm run build
+Start: npm start
+Health check: /login
 ```
 
-Railway injects `PORT` automatically; do not create a production `PORT` variable manually.
-
-Generate a public domain for the backend. Test:
-
-```text
-https://YOUR-BACKEND-DOMAIN/health
-```
-
-Expected response:
-
-```json
-{"name":"CashBox Cloud","status":"ok"}
-```
-
-## 3. Deploy the frontend on Railway
-
-In the same Railway project, create a second service from the same GitHub repository and set its **Root Directory** to:
-
-```text
-/frontend
-```
-
-Add this frontend variable:
-
-```text
-BACKEND_URL=https://YOUR-BACKEND-DOMAIN
-```
-
-Railway will read `frontend/railway.json`. Generate a public domain for the frontend after deployment.
-
-## 4. Optional backend CORS setting
-
-The browser normally talks only to the Next.js proxy, so CORS is not required between the browser and backend. If you later call the backend directly from browser code, set:
-
-```text
-FRONTEND_URLS=https://YOUR-FRONTEND-DOMAIN
-```
-
-Multiple origins can be comma-separated.
-
-## 5. Local development
+## Local development
 
 Backend:
 
-```bash
+```cmd
 cd backend
 copy .env.example .env
 npm install
 npm start
 ```
 
-Frontend in another terminal:
+Frontend in another CMD window:
 
-```bash
+```cmd
 cd frontend
 copy .env.example .env.local
 npm install
@@ -104,4 +59,4 @@ Local defaults are frontend `http://localhost:3000` and backend `http://localhos
 
 ## Security
 
-Never upload the real TiDB password, `DATABASE_URL`, or `JWT_SECRET` to GitHub. Store them only as Railway environment variables. If a database password has ever been shared in chat, screenshots, Git history, or a public repository, rotate it before production use.
+Never upload the real TiDB password, `DATABASE_URL`, or `JWT_SECRET` to GitHub. Store production secrets only in Railway Variables. If a database password has ever been exposed publicly, rotate it before production use.

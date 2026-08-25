@@ -1,16 +1,11 @@
-# أهم الإصلاحات المنفذة
+# Railway fixes in this package
 
-1. تحويل المشروع إلى Monorepo نظيف ومناسب للرفع إلى GitHub.
-2. إزالة أي اعتماد على Vercel أو ملفات نشر خاصة به.
-3. إضافة `railway.json` مستقل لكل من Backend وFrontend.
-4. تثبيت Node.js على السلسلة `20.x` لثبات البناء على Railway.
-5. تجهيز Backend ليستخدم `PORT` الذي توفره Railway تلقائيًا.
-6. إضافة `/health` كمسار فحص صحة للـ Backend.
-7. إبقاء بيانات TiDB و`JWT_SECRET` خارج GitHub عبر Environment Variables فقط.
-8. تغيير اتصال الواجهة بالـ Backend إلى Proxy داخل Next.js عند `/api/backend/*`.
-9. جعل رابط الـ Backend متغيرًا سريًا وقت التشغيل باسم `BACKEND_URL` بدل نشره داخل JavaScript للمتصفح.
-10. إبقاء JWT في Authorization header وتمريره عبر الـ Proxy بدون تغيير.
-11. دعم GET/POST/PUT/PATCH/DELETE/OPTIONS في الـ Proxy.
-12. إضافة `.gitignore` مركزي يمنع رفع `.env` و`node_modules` وملفات البناء.
-13. إضافة README يشرح رفع GitHub وإنشاء خدمتين منفصلتين على Railway من نفس المستودع.
-14. الحفاظ على النظام المالي الحالي، الصناديق، التقارير، Excel/PDF، المستخدمين والمخزون دون تغيير منطق البيانات.
+1. Added a root `start` command so Railpack can detect how to run the application.
+2. Added root `railway.json` with explicit build/start commands and `/login` health check.
+3. Added root `package-lock.json` support for deterministic root installation.
+4. Added a Node launcher (`scripts/start.js`) that runs both services in one Railway container:
+   - Next.js frontend on Railway's public `PORT`.
+   - Express/Prisma backend on an internal local port.
+5. The frontend proxy receives `BACKEND_URL` automatically at runtime; no public backend domain is required.
+6. Railway can now deploy from repository root; no `/backend` or `/frontend` Root Directory is required.
+7. Real secrets remain outside Git. Configure `DATABASE_URL` and `JWT_SECRET` only in Railway Variables.

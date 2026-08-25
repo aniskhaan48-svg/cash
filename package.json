@@ -1,15 +1,16 @@
 {
   "name": "cashbox-cloud",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "private": true,
-  "description": "CashBox Cloud monorepo - Next.js frontend and Express/Prisma backend",
+  "description": "CashBox Cloud - Railway-ready Next.js frontend with local Express/Prisma backend",
   "scripts": {
-    "install:all": "npm --prefix backend ci && npm --prefix frontend ci",
-    "build:backend": "npm --prefix backend run build",
-    "build:frontend": "npm --prefix frontend run build",
-    "check:backend": "npm --prefix backend run check"
+    "railway:install": "npm --prefix backend ci --include=dev && npm --prefix frontend ci --include=dev",
+    "build": "npm run railway:install && npm --prefix backend run build && npm --prefix frontend run build",
+    "start": "node scripts/start.js",
+    "check": "node --check scripts/start.js && npm --prefix backend run check"
   },
   "engines": {
     "node": "20.x"
-  }
+  },
+  "packageManager": "npm@10.9.2"
 }
