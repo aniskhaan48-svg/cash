@@ -1,0 +1,123 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model audit_logs {
+  id         BigInt    @id @default(autoincrement())
+  user_id    BigInt
+  action     String    @db.VarChar(100)
+  table_name String    @db.VarChar(100)
+  record_id  BigInt
+  old_values Json?
+  new_values Json?
+  created_at DateTime? @default(now()) @db.DateTime(0)
+}
+
+model cashboxes {
+  id           BigInt         @id @default(autoincrement())
+  name_ar      String         @db.VarChar(255)
+  name_en      String         @db.VarChar(255)
+  is_active    Boolean?       @default(true)
+  created_at   DateTime?      @default(now()) @db.DateTime(0)
+  updated_at   DateTime?      @default(now()) @db.DateTime(0)
+  transactions transactions[]
+}
+
+model categories {
+  id           BigInt          @id @default(autoincrement())
+  name_ar      String          @db.VarChar(255)
+  name_en      String          @db.VarChar(255)
+  type         categories_type
+  is_active    Boolean?        @default(true)
+  created_at   DateTime?       @default(now()) @db.DateTime(0)
+  transactions transactions[]
+}
+
+model settings {
+  id              BigInt    @id @default(autoincrement())
+  company_name_ar String?   @db.VarChar(255)
+  company_name_en String?   @db.VarChar(255)
+  currency        String?   @default("SAR") @db.VarChar(10)
+  logo_url        String?   @db.Text
+  created_at      DateTime? @default(now()) @db.DateTime(0)
+  updated_at      DateTime? @default(now()) @db.DateTime(0)
+}
+
+model transactions {
+  id               BigInt            @id @default(autoincrement())
+  cashbox_id       BigInt
+  category_id      BigInt
+  type             transactions_type
+  amount           Decimal           @db.Decimal(18, 2)
+  description      String?           @db.Text
+  reference_no     String?           @db.VarChar(100)
+  transaction_date DateTime          @db.Date
+  balance_after    Decimal?          @default(0) @db.Decimal(18, 2)
+  created_by       BigInt
+  created_at       DateTime?         @default(now()) @db.DateTime(0)
+  updated_at       DateTime?         @default(now()) @db.DateTime(0)
+  cashboxes        cashboxes         @relation(fields: [cashbox_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_transactions_cashbox")
+  categories       categories        @relation(fields: [category_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_transactions_category")
+  users            users             @relation(fields: [created_by], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_transactions_user")
+
+  @@index([created_by], map: "fk_transactions_user")
+  @@index([cashbox_id], map: "fk_transactions_cashbox")
+  @@index([category_id], map: "fk_transactions_category")
+}
+
+model users {
+  id            BigInt         @id @default(autoincrement())
+  username      String         @unique(map: "username") @db.VarChar(100)
+  password_hash String         @db.VarChar(255)
+  full_name     String         @db.VarChar(255)
+  role          users_role
+  is_active     Boolean?       @default(true)
+  created_at    DateTime?      @default(now()) @db.DateTime(0)
+  updated_at    DateTime?      @default(now()) @db.DateTime(0)
+  transactions  transactions[]
+}
+
+model items {
+  id         BigInt            @id @default(autoincrement())
+  name       String            @db.VarChar(255)
+  unit       String            @db.VarChar(50)
+  sale_price Decimal?          @db.Decimal(10, 2)
+  min_stock  Int               @default(0)
+  created_at DateTime?         @default(now()) @db.DateTime(0)
+  movements  stock_movements[]
+}
+
+model stock_movements {
+  id            BigInt    @id @default(autoincrement())
+  item_id       BigInt
+  movement_type String    @db.VarChar(20)
+  quantity      Int
+  movement_date DateTime  @db.Date
+  notes         String?   @db.Text
+  created_at    DateTime? @default(now()) @db.DateTime(0)
+  item          items     @relation(fields: [item_id], references: [id])
+
+  @@index([item_id], map: "stock_movements_item_id_fkey")
+}
+
+enum transactions_type {
+  IN
+  OUT
+}
+
+enum categories_type {
+  INCOME
+  EXPENSE
+}
+
+enum users_role {
+  CEO
+  MANAGER
+  ACCOUNTANT
+  STORE_KEEPER
+}
