@@ -4,13 +4,21 @@ import { useEffect, useState } from "react";
 import Sidebar from "../../../components/Sidebar";
 import { apiFetch } from "../../../lib/api";
 
+const localDate = () => {
+  const now = new Date();
+  const y = now.getFullYear();
+  const m = String(now.getMonth() + 1).padStart(2, "0");
+  const d = String(now.getDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
+};
+
 export default function ConsumptionPage() {
   const [items, setItems] = useState([]);
   const [quantities, setQuantities] = useState({});
-  const [movementDate, setMovementDate] = useState(
-    new Date().toISOString().split("T")[0]
-  );
+  const [movementDate, setMovementDate] = useState(localDate());
   const [saving, setSaving] = useState(false);
+  const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
 
   const loadItems = () => {
     apiFetch("/api/inventory/stock")
@@ -18,8 +26,11 @@ export default function ConsumptionPage() {
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         return res.json();
       })
-      .then((data) => setItems(data))
-      .catch((err) => console.error("Inventory Error:", err));
+      .then((data) => setItems(Array.isArray(data) ? data : []))
+      .catch((err) => {
+        console.error("Inventory Error:", err);
+        setError("تعذر تحميل أصناف المستودع");
+      });
   };
 
   useEffect(() => {
@@ -27,96 +38,92 @@ export default function ConsumptionPage() {
   }, []);
 
   const saveConsumption = async () => {
+    setMessage("");
+    setError("");
+
+    const entries = items
+      .map((item) => ({ item, qty: Number(quantities[item.id] || 0) }))
+      .filter(({ qty }) => qty > 0);
+
+    if (entries.length === 0) {
+      setError("أدخل كمية واحدة على الأقل");
+      return;
+    }
+
+    if (entries.some(({ qty }) => !Number.isInteger(qty))) {
+      setError("الكمية يجب أن تكون رقمًا صحيحًا");
+      return;
+    }
+
     try {
       setSaving(true);
-
-      const entries = items
-        .map((item) => ({
-          item,
-          qty: Number(quantities[item.id] || 0),
-        }))
-        .filter(({ qty }) => qty > 0);
-
-      if (entries.length === 0) {
-        alert("أدخل كمية واحدة على الأقل");
-        return;
-      }
-
       for (const { item, qty } of entries) {
         const response = await apiFetch("/api/inventory/consumption", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            item_id: item.id,
-            quantity: qty,
-            movement_date: movementDate,
-          }),
+          body: JSON.stringify({ item_id: item.id, quantity: qty, movement_date: movementDate }),
         });
-
         const result = await response.json();
-        if (!response.ok) {
-          throw new Error(result.message || "تعذر حفظ الاستهلاك");
-        }
+        if (!response.ok) throw new Error(result.message || "تعذر حفظ الاستهلاك");
       }
 
       setQuantities({});
+      setMessage("تم حفظ الاستهلاك اليومي بنجاح");
       loadItems();
-      alert("تم حفظ الاستهلاك بنجاح");
-    } catch (error) {
-      console.error("Consumption Save Error:", error);
-      alert(error.message || "حدث خطأ");
+    } catch (err) {
+      console.error("Consumption Save Error:", err);
+      setError(err.message || "حدث خطأ أثناء الحفظ");
     } finally {
       setSaving(false);
     }
   };
 
   return (
-    <div className="flex" dir="rtl">
+    <div className="cb-shell" dir="rtl">
       <Sidebar />
-
-      <main className="flex-1 min-h-screen bg-gray-100 p-8">
-        <h1 className="text-4xl font-bold text-center mb-8">الاستهلاك اليومي</h1>
-
-        <div className="max-w-4xl mx-auto bg-white rounded-xl shadow p-6">
-          <div className="mb-6">
-            <label className="block mb-2 font-bold">تاريخ الاستهلاك</label>
-            <input
-              type="date"
-              value={movementDate}
-              onChange={(e) => setMovementDate(e.target.value)}
-              className="border p-3 rounded-lg w-full"
-            />
+      <main className="cb-dashboard cb-warehouse-dashboard">
+        <header className="cb-topbar">
+          <div>
+            <h1 className="cb-welcome-title"><span aria-hidden="true">⬇️</span> الاستهلاك اليومي</h1>
+            <p className="cb-welcome-subtitle">تسجيل الكروت والأساور التي تم استهلاكها أو صرفها اليوم</p>
           </div>
+        </header>
 
-          {items.map((item) => (
-            <div key={item.id} className="grid grid-cols-3 gap-4 mb-4 items-center">
-              <div className="font-bold">{item.name}</div>
-              <div className="text-gray-500">المتاح: {item.stock} {item.unit}</div>
-              <input
-                type="number"
-                min="0"
-                max={Math.max(0, item.stock)}
-                value={quantities[item.id] || ""}
-                className="border p-3 rounded-lg"
-                placeholder="الكمية"
-                onChange={(e) =>
-                  setQuantities({
-                    ...quantities,
-                    [item.id]: e.target.value,
-                  })
-                }
-              />
+        <section className="cb-panel cb-inventory-form-panel">
+          <div className="cb-panel-body">
+            <div className="cb-inventory-date-field">
+              <label htmlFor="consumption-date">تاريخ الاستهلاك</label>
+              <input id="consumption-date" type="date" value={movementDate} onChange={(e) => setMovementDate(e.target.value)} />
             </div>
-          ))}
 
-          <button
-            onClick={saveConsumption}
-            disabled={saving}
-            className="bg-red-600 disabled:bg-gray-400 text-white px-6 py-3 rounded-lg"
-          >
-            {saving ? "جاري الحفظ..." : "حفظ الاستهلاك"}
-          </button>
-        </div>
+            <div className="cb-inventory-entry-list">
+              {items.map((item) => (
+                <div key={item.id} className="cb-inventory-entry-row">
+                  <div>
+                    <strong>{item.name}</strong>
+                    <small>المتاح: {Number(item.stock || 0).toLocaleString("en-US")} {item.unit}</small>
+                  </div>
+                  <input
+                    type="number"
+                    min="0"
+                    max={Math.max(0, Number(item.stock || 0))}
+                    step="1"
+                    value={quantities[item.id] || ""}
+                    placeholder="الكمية المستهلكة"
+                    onChange={(e) => setQuantities((prev) => ({ ...prev, [item.id]: e.target.value }))}
+                  />
+                </div>
+              ))}
+            </div>
+
+            {message && <div className="cb-form-message success">{message}</div>}
+            {error && <div className="cb-form-message error">{error}</div>}
+
+            <button type="button" onClick={saveConsumption} disabled={saving} className="cb-inventory-submit out">
+              {saving ? "جاري الحفظ..." : "حفظ الاستهلاك اليومي"}
+            </button>
+          </div>
+        </section>
       </main>
     </div>
   );

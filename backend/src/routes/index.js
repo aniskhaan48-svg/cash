@@ -18,7 +18,12 @@ router.get("/", (req, res) => {
 
 router.use("/api/auth", authRoutes);
 
-router.use("/api/dashboard", authenticate, dashboardRoutes);
+router.use(
+  "/api/dashboard",
+  authenticate,
+  authorize("CEO", "MANAGER", "ACCOUNTANT"),
+  dashboardRoutes
+);
 router.use(
   "/api/transactions",
   authenticate,

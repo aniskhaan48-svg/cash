@@ -854,3 +854,320 @@ textarea {
 .cb-export-excel:not(:disabled):hover {
   background: linear-gradient(135deg, #566579 0%, #475569 100%);
 }
+
+/* ---------- Store keeper / warehouse workspace ---------- */
+.cb-warehouse-dashboard {
+  background:
+    radial-gradient(circle at 10% 4%, rgba(211, 163, 78, 0.09), transparent 26%),
+    linear-gradient(145deg, #fbf8f1 0%, #f4eddf 100%);
+}
+
+.cb-warehouse-summary {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.cb-warehouse-kpi {
+  min-height: 150px;
+}
+
+.cb-warehouse-items {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.cb-warehouse-item-card {
+  position: relative;
+  overflow: hidden;
+  padding: 21px;
+  border: 1px solid #e8dcc9;
+  border-radius: 20px;
+  background:
+    radial-gradient(circle at 8% 12%, rgba(211, 163, 78, 0.12), transparent 25%),
+    linear-gradient(145deg, #fffdf8, #faf4e9);
+  box-shadow: var(--cb-shadow-sm);
+}
+
+.cb-warehouse-item-card::after {
+  content: "";
+  position: absolute;
+  width: 110px;
+  height: 110px;
+  left: -35px;
+  bottom: -45px;
+  border: 1px solid rgba(185, 133, 46, 0.13);
+  border-radius: 50%;
+}
+
+.cb-warehouse-item-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.cb-warehouse-item-label {
+  margin-bottom: 5px;
+  color: var(--cb-muted);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.cb-warehouse-item-top h2 {
+  margin: 0;
+  color: #403421;
+  font-size: 22px;
+  font-weight: 900;
+}
+
+.cb-warehouse-item-icon {
+  width: 52px;
+  height: 52px;
+  display: grid;
+  place-items: center;
+  flex: 0 0 52px;
+  color: #a16f22;
+  border: 1px solid #e8d3ae;
+  border-radius: 16px;
+  background: #f8e8c7;
+}
+
+.cb-warehouse-item-icon svg {
+  width: 25px;
+  height: 25px;
+}
+
+.cb-warehouse-stock-number {
+  margin-top: 18px;
+  direction: ltr;
+  text-align: right;
+  color: #3a2f20;
+  font-size: clamp(30px, 3vw, 43px);
+  font-weight: 900;
+  letter-spacing: -0.5px;
+}
+
+.cb-warehouse-stock-number small {
+  color: #8b7c67;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.cb-warehouse-item-moves {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 17px;
+}
+
+.cb-warehouse-item-moves > div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 11px 12px;
+  border-radius: 12px;
+  font-size: 11px;
+}
+
+.cb-warehouse-item-moves span { color: #786c5c; }
+.cb-warehouse-item-moves strong { direction: ltr; font-size: 14px; }
+.cb-warehouse-item-moves .in { background: #edf1df; }
+.cb-warehouse-item-moves .in strong { color: #557133; }
+.cb-warehouse-item-moves .out { background: #f7e2d8; }
+.cb-warehouse-item-moves .out strong { color: #b64b32; }
+
+.cb-warehouse-actions {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  margin-bottom: 16px;
+}
+
+.cb-warehouse-action {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  min-height: 92px;
+  padding: 16px;
+  border: 1px solid #e8ddca;
+  border-radius: 18px;
+  color: #403522;
+  background: #fffdf8;
+  box-shadow: var(--cb-shadow-sm);
+  text-decoration: none;
+  transition: 160ms ease;
+}
+
+.cb-warehouse-action:hover {
+  transform: translateY(-2px);
+  border-color: #ddc394;
+  box-shadow: var(--cb-shadow);
+}
+
+.cb-warehouse-action-icon {
+  width: 48px;
+  height: 48px;
+  display: grid;
+  place-items: center;
+  flex: 0 0 48px;
+  border-radius: 15px;
+  font-size: 25px;
+  font-weight: 900;
+}
+
+.cb-warehouse-action-icon svg { width: 24px; height: 24px; }
+.cb-warehouse-action strong { display: block; font-size: 14px; font-weight: 900; }
+.cb-warehouse-action small { display: block; margin-top: 5px; color: var(--cb-muted); font-size: 10px; }
+.cb-warehouse-action.in .cb-warehouse-action-icon { color: #567133; background: #e7edd7; }
+.cb-warehouse-action.out .cb-warehouse-action-icon { color: #b64a31; background: #f5ded3; }
+.cb-warehouse-action.neutral .cb-warehouse-action-icon { color: #96671f; background: #f4e2bd; }
+
+.cb-warehouse-recent { margin-bottom: 16px; }
+.cb-warehouse-movement-list { display: flex; flex-direction: column; }
+
+.cb-warehouse-movement-row {
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 12px;
+  min-height: 64px;
+  padding: 9px 0;
+  border-bottom: 1px dashed #eadfce;
+}
+
+.cb-warehouse-movement-row:last-child { border-bottom: 0; }
+
+.cb-warehouse-movement-type {
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 900;
+}
+
+.cb-warehouse-movement-type.in { color: #557133; background: #e7edd7; }
+.cb-warehouse-movement-type.out { color: #b64a31; background: #f5ded3; }
+
+.cb-inventory-page-grid {
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+}
+
+.cb-current-stock-card { min-height: 220px; }
+.cb-current-stock-caption { margin-top: 8px; color: var(--cb-muted); font-size: 11px; }
+.cb-inventory-actions { grid-template-columns: repeat(2, minmax(0, 1fr)); margin-top: 18px; }
+
+.cb-inventory-form-panel {
+  max-width: 900px;
+  margin-inline: auto;
+}
+
+.cb-inventory-date-field {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 22px;
+}
+
+.cb-inventory-date-field label {
+  color: #554836;
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.cb-inventory-date-field input,
+.cb-inventory-entry-row input {
+  width: 100%;
+  min-height: 46px;
+  padding: 10px 12px;
+  color: #3d3326;
+  border: 1px solid #e2d4be;
+  border-radius: 12px;
+  outline: none;
+  background: #fffaf2;
+}
+
+.cb-inventory-date-field input:focus,
+.cb-inventory-entry-row input:focus {
+  border-color: #bd9149;
+  box-shadow: 0 0 0 3px rgba(185, 133, 46, 0.11);
+}
+
+.cb-inventory-entry-list {
+  display: grid;
+  gap: 12px;
+}
+
+.cb-inventory-entry-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(190px, 0.42fr);
+  align-items: center;
+  gap: 16px;
+  padding: 15px;
+  border: 1px solid #eadfce;
+  border-radius: 15px;
+  background: #fcf8f0;
+}
+
+.cb-inventory-entry-row strong {
+  display: block;
+  color: #423626;
+  font-size: 15px;
+}
+
+.cb-inventory-entry-row small {
+  display: block;
+  margin-top: 5px;
+  color: var(--cb-muted);
+  font-size: 11px;
+}
+
+.cb-inventory-submit {
+  width: 100%;
+  min-height: 50px;
+  margin-top: 20px;
+  border: 0;
+  border-radius: 13px;
+  color: #fffaf0;
+  cursor: pointer;
+  font-weight: 900;
+  transition: 160ms ease;
+}
+
+.cb-inventory-submit.in { background: linear-gradient(135deg, #5e6938, #37391f); }
+.cb-inventory-submit.out { background: linear-gradient(135deg, #a95837, #7d3525); }
+.cb-inventory-submit:not(:disabled):hover { transform: translateY(-1px); filter: brightness(1.05); }
+.cb-inventory-submit:disabled { opacity: 0.55; cursor: wait; }
+
+.cb-form-message {
+  margin-top: 16px;
+  padding: 11px 13px;
+  border-radius: 11px;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.cb-form-message.success { color: #4f6d30; background: #e7edd7; border: 1px solid #d5dfbd; }
+.cb-form-message.error { color: #a5422d; background: #f5ded3; border: 1px solid #efc5b5; }
+
+@media (max-width: 1180px) {
+  .cb-warehouse-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .cb-warehouse-actions { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 820px) {
+  .cb-warehouse-items,
+  .cb-inventory-actions { grid-template-columns: 1fr; }
+  .cb-warehouse-movement-row { grid-template-columns: 40px minmax(0, 1fr) auto; }
+  .cb-warehouse-movement-type { display: none; }
+}
+
+@media (max-width: 560px) {
+  .cb-warehouse-summary { grid-template-columns: 1fr; }
+  .cb-warehouse-item-moves { grid-template-columns: 1fr; }
+  .cb-inventory-entry-row { grid-template-columns: 1fr; }
+  .cb-warehouse-movement-row { grid-template-columns: 36px minmax(0, 1fr); }
+  .cb-warehouse-movement-row .cb-transaction-amount { grid-column: 2; }
+}

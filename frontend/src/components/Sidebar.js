@@ -25,6 +25,7 @@ const Icon = ({ name }) => {
     settings: <><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.8 1.8 0 0 0 .36 1.98l.06.06-2.78 2.78-.06-.06A1.8 1.8 0 0 0 15 19.4a1.8 1.8 0 0 0-1 .6 1.8 1.8 0 0 0-.4 1.14V21H9.6v-.09A1.8 1.8 0 0 0 8.4 19.4a1.8 1.8 0 0 0-1.98.36l-.06.06-2.78-2.78.06-.06A1.8 1.8 0 0 0 4 15a1.8 1.8 0 0 0-.6-1 1.8 1.8 0 0 0-1.14-.4H2V9.6h.09A1.8 1.8 0 0 0 4 8.4a1.8 1.8 0 0 0-.36-1.98l-.06-.06 2.78-2.78.06.06A1.8 1.8 0 0 0 8.4 4a1.8 1.8 0 0 0 1-.6A1.8 1.8 0 0 0 9.8 2.26V2h4v.09A1.8 1.8 0 0 0 15 4a1.8 1.8 0 0 0 1.98-.36l.06-.06 2.78 2.78-.06.06A1.8 1.8 0 0 0 19.4 8.4a1.8 1.8 0 0 0 .6 1 1.8 1.8 0 0 0 1.14.4H21v4h-.09A1.8 1.8 0 0 0 19.4 15Z"/></>,
     inventory: <><path d="m21 8-9-5-9 5 9 5 9-5Z"/><path d="m3 8 9 5 9-5M3 8v8l9 5 9-5V8M12 13v8"/></>,
     consumption: <><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></>,
+    stockin: <><path d="M12 21V7"/><path d="m7 12 5-5 5 5"/><path d="M5 3h14"/></>,
     logout: <><path d="M10 17l5-5-5-5M15 12H3"/><path d="M21 19V5a2 2 0 0 0-2-2h-6"/></>,
     shield: <><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/><path d="m9 12 2 2 4-4"/></>,
     brand: <><path d="M7 17.5h9.5a4.5 4.5 0 0 0 .8-8.93A6 6 0 0 0 6 8.5 4.5 4.5 0 0 0 7 17.5Z"/><path d="M9.5 12.5h5M12 10v5"/></>,
@@ -49,6 +50,8 @@ export default function Sidebar() {
     router.push("/login");
   };
 
+  const isStoreKeeper = role === "STORE_KEEPER";
+
   const isActive = (href) => pathname === href;
 
   const NavLink = ({ href, icon, children }) => (
@@ -64,12 +67,12 @@ export default function Sidebar() {
         <div className="cb-brand-mark"><Icon name="brand" /></div>
         <div>
           <h2 className="cb-brand-title">CashBox Cloud</h2>
-          <div className="cb-brand-subtitle">إدارة مالية ذكية وآمنة</div>
+          <div className="cb-brand-subtitle">{isStoreKeeper ? "إدارة المستودع والمخزون" : "إدارة مالية ذكية وآمنة"}</div>
         </div>
       </div>
 
       <nav className="cb-nav">
-        <NavLink href="/dashboard" icon="dashboard">لوحة التحكم</NavLink>
+        <NavLink href="/dashboard" icon="dashboard">{isStoreKeeper ? "لوحة المستودع" : "لوحة التحكم"}</NavLink>
 
         {(role === "CEO" || role === "MANAGER" || role === "ACCOUNTANT") && (
           <>
@@ -92,6 +95,7 @@ export default function Sidebar() {
           <>
             <div className="cb-nav-separator" />
             <NavLink href="/inventory" icon="inventory">المخزون الحالي</NavLink>
+            <NavLink href="/inventory/stock-in" icon="stockin">إدخال للمخزون</NavLink>
             <NavLink href="/inventory/consumption" icon="consumption">الاستهلاك اليومي</NavLink>
           </>
         )}
@@ -99,9 +103,11 @@ export default function Sidebar() {
 
       <div className="cb-security-card">
         <div className="cb-security-icon"><Icon name="shield" /></div>
-        <div className="cb-security-title">صندوقك في أمان</div>
+        <div className="cb-security-title">{isStoreKeeper ? "مخزونك تحت السيطرة" : "صندوقك في أمان"}</div>
         <div className="cb-security-text">
-          هوية مالية احترافية مع صلاحيات دخول وحماية لبيانات الصندوق.
+          {isStoreKeeper
+            ? "صلاحية مخصصة للمستودع لمتابعة الكروت والأساور والإدخال والاستهلاك فقط."
+            : "هوية مالية احترافية مع صلاحيات دخول وحماية لبيانات الصندوق."}
         </div>
       </div>
 
