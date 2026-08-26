@@ -22,6 +22,7 @@ const Icon = ({ name }) => {
     reports: <><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></>,
     statement: <><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></>,
     users: <><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></>,
+    accounts: <><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 8h10M7 12h4M15 12h2M7 16h5M16 16h1"/></>,
     settings: <><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.8 1.8 0 0 0 .36 1.98l.06.06-2.78 2.78-.06-.06A1.8 1.8 0 0 0 15 19.4a1.8 1.8 0 0 0-1 .6 1.8 1.8 0 0 0-.4 1.14V21H9.6v-.09A1.8 1.8 0 0 0 8.4 19.4a1.8 1.8 0 0 0-1.98.36l-.06.06-2.78-2.78.06-.06A1.8 1.8 0 0 0 4 15a1.8 1.8 0 0 0-.6-1 1.8 1.8 0 0 0-1.14-.4H2V9.6h.09A1.8 1.8 0 0 0 4 8.4a1.8 1.8 0 0 0-.36-1.98l-.06-.06 2.78-2.78.06.06A1.8 1.8 0 0 0 8.4 4a1.8 1.8 0 0 0 1-.6A1.8 1.8 0 0 0 9.8 2.26V2h4v.09A1.8 1.8 0 0 0 15 4a1.8 1.8 0 0 0 1.98-.36l.06-.06 2.78 2.78-.06.06A1.8 1.8 0 0 0 19.4 8.4a1.8 1.8 0 0 0 .6 1 1.8 1.8 0 0 0 1.14.4H21v4h-.09A1.8 1.8 0 0 0 19.4 15Z"/></>,
     inventory: <><path d="m21 8-9-5-9 5 9 5 9-5Z"/><path d="m3 8 9 5 9-5M3 8v8l9 5 9-5V8M12 13v8"/></>,
     consumption: <><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></>,
@@ -99,6 +100,7 @@ export default function Sidebar() {
           <>
             <div className="cb-nav-separator" />
             {role === "CEO" && <NavLink href="/users" icon="users">المستخدمون</NavLink>}
+            <NavLink href="/accounts" icon="accounts">دليل الحسابات</NavLink>
             <NavLink href="/settings" icon="settings">الإعدادات</NavLink>
           </>
         )}

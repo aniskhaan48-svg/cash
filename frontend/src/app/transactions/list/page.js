@@ -157,7 +157,7 @@ export default function TransactionsListPage() {
                 <div><label className="block mb-2 font-bold">التاريخ</label><input type="date" value={editing.transaction_date} onChange={(e) => setEditing({ ...editing, transaction_date: e.target.value })} className="w-full border p-3 rounded-lg" /></div>
                 <div><label className="block mb-2 font-bold">المبلغ</label><input type="number" min="0.01" step="0.01" value={editing.amount} onChange={(e) => setEditing({ ...editing, amount: e.target.value })} className="w-full border p-3 rounded-lg" /></div>
                 <div><label className="block mb-2 font-bold">الصندوق</label><select value={editing.cashbox_id} onChange={(e) => setEditing({ ...editing, cashbox_id: e.target.value })} className="w-full border p-3 rounded-lg">{cashboxes.map((box) => <option key={box.id} value={box.id}>{box.name_ar}</option>)}</select></div>
-                <div><label className="block mb-2 font-bold">التصنيف</label><select value={editing.category_id} onChange={(e) => setEditing({ ...editing, category_id: e.target.value })} className="w-full border p-3 rounded-lg">{editCategories.map((category) => <option key={category.id} value={category.id}>{category.name_ar}</option>)}</select></div>
+                <div><label className="block mb-2 font-bold">الحساب</label><select value={editing.category_id} onChange={(e) => setEditing({ ...editing, category_id: e.target.value })} className="w-full border p-3 rounded-lg">{editCategories.map((category) => <option key={category.id} value={category.id}>{category.name_ar}</option>)}</select></div>
                 <div><label className="block mb-2 font-bold">البيان</label><input value={editing.description} onChange={(e) => setEditing({ ...editing, description: e.target.value })} className="w-full border p-3 rounded-lg" /></div>
               </div>
               <div className="flex gap-3 mt-5">
@@ -175,7 +175,7 @@ export default function TransactionsListPage() {
 
             <div className="overflow-x-auto">
               <table className="w-full border-collapse">
-                <thead><tr className="border-b bg-[#faf6ed]"><th className="p-3">ID</th><th className="p-3">التاريخ</th><th className="p-3">الصندوق</th><th className="p-3">التصنيف</th><th className="p-3">المستخدم</th><th className="p-3">النوع</th><th className="p-3">المبلغ</th><th className="p-3">البيان</th><th className="p-3">الرصيد بعد العملية</th>{canManage && <th className="p-3">إدارة</th>}</tr></thead>
+                <thead><tr className="border-b bg-[#faf6ed]"><th className="p-3">ID</th><th className="p-3">التاريخ</th><th className="p-3">الصندوق</th><th className="p-3">الحساب</th><th className="p-3">المستخدم</th><th className="p-3">النوع</th><th className="p-3">المبلغ</th><th className="p-3">البيان</th><th className="p-3">الرصيد بعد العملية</th>{canManage && <th className="p-3">إدارة</th>}</tr></thead>
                 <tbody>
                   {filteredTransactions.length === 0 ? (
                     <tr><td colSpan={canManage ? 10 : 9} className="p-8 text-center text-gray-500">لا توجد نتائج</td></tr>
