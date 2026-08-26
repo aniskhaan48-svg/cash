@@ -1,4 +1,5 @@
 import "./globals.css";
+import AccessGate from "../components/AccessGate";
 
 export const metadata = {
   title: "CashBox Cloud",
@@ -8,7 +9,7 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="ar" dir="rtl" className="h-full antialiased">
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col"><AccessGate>{children}</AccessGate></body>
     </html>
   );
 }

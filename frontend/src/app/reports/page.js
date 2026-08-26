@@ -129,6 +129,7 @@ export default function ReportsPage() {
           "البيان",
           "مدين",
           "دائن",
+          "الرصيد بعد العملية",
         ],
       ];
 
@@ -151,9 +152,13 @@ export default function ReportsPage() {
             t.credit != null
               ? Number(t.credit)
               : "",
+            Number(t.balanceAfter || 0),
           ]);
         }
       );
+
+      rows.push([]);
+      rows.push(["الرصيد الحالي بعد آخر حركة", Number(data.currentBalance || 0)]);
 
       const worksheet =
         XLSX.utils.aoa_to_sheet(rows);
@@ -165,6 +170,7 @@ export default function ReportsPage() {
         { wch: 45 },
         { wch: 18 },
         { wch: 18 },
+        { wch: 22 },
       ];
 
       const workbook =
@@ -595,6 +601,10 @@ export default function ReportsPage() {
                       دائن
                     </th>
 
+                    <th className="p-3 text-center">
+                      الرصيد بعد العملية
+                    </th>
+
                   </tr>
                 </thead>
 
@@ -645,6 +655,10 @@ export default function ReportsPage() {
                             : "-"}
                         </td>
 
+                        <td className="p-3 text-center font-bold text-[#4b4a24]">
+                          {Number(t.balanceAfter || 0).toLocaleString()}
+                        </td>
+
                       </tr>
                     )
                   )}
@@ -654,6 +668,13 @@ export default function ReportsPage() {
               </table>
 
             </div>
+
+            {(data.lastTransactions || []).length > 0 && (
+              <div className="mt-4 rounded-xl bg-[#f4ead6] border border-[#d7b36c] p-4 flex justify-between gap-4 flex-wrap font-bold">
+                <span>الرصيد الحالي بعد آخر حركة</span>
+                <span className="text-xl">{Number(data.currentBalance || 0).toLocaleString()} ريال</span>
+              </div>
+            )}
 
             {(data.lastTransactions || [])
               .length === 0 && (

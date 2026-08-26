@@ -10,6 +10,7 @@ const inventoryRoutes = require("./inventory");
 const masterDataRoutes = require("./masterData");
 const cashboxesRoutes = require("./cashboxes");
 const statementRoutes = require("./statement");
+const openingBalancesRoutes = require("./openingBalances");
 const { authenticate, authorize } = require("../middleware/auth");
 
 router.get("/", (req, res) => {
@@ -33,7 +34,7 @@ router.use(
 router.use(
   "/api/users",
   authenticate,
-  authorize("CEO", "MANAGER"),
+  authorize("CEO"),
   usersRoutes
 );
 router.use(
@@ -65,6 +66,12 @@ router.use(
   authenticate,
   authorize("CEO", "MANAGER", "ACCOUNTANT"),
   statementRoutes
+);
+router.use(
+  "/api/opening-balances",
+  authenticate,
+  authorize("CEO", "MANAGER"),
+  openingBalancesRoutes
 );
 
 module.exports = router;

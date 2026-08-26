@@ -226,4 +226,127 @@ router.post("/stock-in", async (req, res) => {
   }
 });
 
+
+router.get("/report", async (req, res) => {
+  try {
+    const period = req.query.period === "monthly" ? "monthly" : "daily";
+    const today = new Date().toISOString().slice(0, 10);
+
+    let startKey;
+    let endKey;
+    let label;
+
+    if (period === "monthly") {
+      const month = /^\d{4}-\d{2}$/.test(String(req.query.month || ""))
+        ? String(req.query.month)
+        : today.slice(0, 7);
+      const [year, monthNumber] = month.split("-").map(Number);
+      const end = new Date(Date.UTC(year, monthNumber, 0));
+      startKey = `${month}-01`;
+      endKey = end.toISOString().slice(0, 10);
+      label = month;
+    } else {
+      const date = /^\d{4}-\d{2}-\d{2}$/.test(String(req.query.date || ""))
+        ? String(req.query.date)
+        : today;
+      startKey = date;
+      endKey = date;
+      label = date;
+    }
+
+    const items = await prisma.items.findMany({
+      include: {
+        movements: {
+          orderBy: [{ movement_date: "asc" }, { id: "asc" }],
+        },
+      },
+      orderBy: { id: "asc" },
+    });
+
+    const itemReports = items.map((item) => {
+      let openingStock = 0;
+      let periodIn = 0;
+      let periodOut = 0;
+      const periodMovements = [];
+
+      for (const movement of item.movements) {
+        const dateKey = toDateKey(movement.movement_date);
+        const qty = Number(movement.quantity || 0);
+        const delta = movement.movement_type === "IN" ? qty : -qty;
+
+        if (dateKey < startKey) {
+          openingStock += delta;
+          continue;
+        }
+
+        if (dateKey >= startKey && dateKey <= endKey) {
+          if (movement.movement_type === "IN") periodIn += qty;
+          if (movement.movement_type === "OUT") periodOut += qty;
+          periodMovements.push(movement);
+        }
+      }
+
+      let running = openingStock;
+      const movementRows = periodMovements.map((movement) => {
+        const qty = Number(movement.quantity || 0);
+        running += movement.movement_type === "IN" ? qty : -qty;
+        return {
+          id: Number(movement.id),
+          itemId: Number(item.id),
+          itemName: item.name,
+          unit: item.unit,
+          type: movement.movement_type,
+          quantity: qty,
+          date: movement.movement_date,
+          notes: movement.notes || "",
+          balanceAfter: running,
+        };
+      });
+
+      return {
+        id: Number(item.id),
+        name: item.name,
+        unit: item.unit,
+        openingStock,
+        totalIn: periodIn,
+        totalOut: periodOut,
+        closingStock: openingStock + periodIn - periodOut,
+        movements: movementRows,
+      };
+    });
+
+    const totals = itemReports.reduce(
+      (acc, item) => {
+        acc.openingStock += item.openingStock;
+        acc.totalIn += item.totalIn;
+        acc.totalOut += item.totalOut;
+        acc.closingStock += item.closingStock;
+        acc.movementCount += item.movements.length;
+        return acc;
+      },
+      { openingStock: 0, totalIn: 0, totalOut: 0, closingStock: 0, movementCount: 0 }
+    );
+
+    const movements = itemReports
+      .flatMap((item) => item.movements)
+      .sort((a, b) => {
+        const dateDiff = String(b.date).localeCompare(String(a.date));
+        return dateDiff || b.id - a.id;
+      });
+
+    return res.json({
+      period,
+      label,
+      from: startKey,
+      to: endKey,
+      items: itemReports.map(({ movements: _movements, ...item }) => item),
+      totals,
+      movements,
+    });
+  } catch (error) {
+    console.error("Inventory Report Error:", error);
+    return res.status(500).json({ message: "Error loading inventory report" });
+  }
+});
+
 module.exports = router;

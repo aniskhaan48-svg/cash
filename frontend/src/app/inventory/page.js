@@ -54,6 +54,7 @@ export default function InventoryPage() {
           <div className="flex gap-2 flex-wrap">
             <Link href="/inventory/stock-in" className="cb-outline-button">إدخال للمخزون</Link>
             <Link href="/inventory/consumption" className="cb-outline-button">الاستهلاك اليومي</Link>
+            <Link href="/inventory/reports" className="cb-outline-button">تقارير المخزون</Link>
           </div>
         </header>
 
@@ -90,6 +91,10 @@ export default function InventoryPage() {
           <Link href="/inventory/consumption" className="cb-warehouse-action out">
             <span className="cb-warehouse-action-icon">−</span>
             <span><strong>الاستهلاك اليومي</strong><small>تسجيل الكمية المصروفة</small></span>
+          </Link>
+          <Link href="/inventory/reports" className="cb-warehouse-action neutral">
+            <span className="cb-warehouse-action-icon">▤</span>
+            <span><strong>التقارير</strong><small>التقرير اليومي والشهري</small></span>
           </Link>
         </section>
       </main>

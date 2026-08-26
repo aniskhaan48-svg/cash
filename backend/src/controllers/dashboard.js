@@ -1,129 +1,120 @@
 const prisma = require("../config/prisma");
+const {
+  getDeletedTransactionIds,
+  getOpeningBalance,
+  isOnOrAfterOpening,
+} = require("../services/cashboxLedger");
 
 const dashboard = async (req, res) => {
   try {
     const { cashboxId } = req.query;
 
     const selectedCashboxId =
-      cashboxId && cashboxId !== "all"
-        ? Number(cashboxId)
-        : null;
-
-    const transactionWhere = selectedCashboxId
-      ? {
-          cashbox_id: BigInt(selectedCashboxId),
-        }
-      : {};
+      cashboxId && cashboxId !== "all" ? Number(cashboxId) : null;
 
     const cashboxWhere = selectedCashboxId
-      ? {
-          is_active: true,
-          id: BigInt(selectedCashboxId),
-        }
-      : {
-          is_active: true,
-        };
+      ? { is_active: true, id: BigInt(selectedCashboxId) }
+      : { is_active: true };
 
-    const transactions = await prisma.transactions.findMany({
-      where: transactionWhere,
-    });
+    const [cashboxes, allTransactions, deletedIds] = await Promise.all([
+      prisma.cashboxes.findMany({ where: cashboxWhere, orderBy: { id: "asc" } }),
+      prisma.transactions.findMany({
+        where: selectedCashboxId ? { cashbox_id: BigInt(selectedCashboxId) } : {},
+        include: { cashboxes: true },
+        orderBy: [{ transaction_date: "desc" }, { id: "desc" }],
+      }),
+      getDeletedTransactionIds(),
+    ]);
 
-    const cashboxes = await prisma.cashboxes.findMany({
-      where: cashboxWhere,
-    });
+    const openingByCashbox = new Map();
+    const activeCashboxIds = new Set(cashboxes.map((box) => String(box.id)));
+    await Promise.all(
+      cashboxes.map(async (box) => {
+        openingByCashbox.set(String(box.id), await getOpeningBalance(box.id));
+      })
+    );
 
-    const lastTransactions = await prisma.transactions.findMany({
-      where: transactionWhere,
-      include: {
-        cashboxes: true,
-      },
-      orderBy: {
-        id: "desc",
-      },
-      take: 10,
+    const activeTransactions = allTransactions.filter((transaction) => {
+      if (!activeCashboxIds.has(String(transaction.cashbox_id))) return false;
+      if (deletedIds.has(String(transaction.id))) return false;
+      const opening = openingByCashbox.get(String(transaction.cashbox_id));
+      return isOnOrAfterOpening(transaction.transaction_date, opening);
     });
 
     let income = 0;
     let expense = 0;
-
+    let openingTotal = 0;
     const cashboxesMap = {};
 
-    // إنشاء الصناديق المطلوبة حتى لو الرصيد صفر
     cashboxes.forEach((box) => {
+      const opening = openingByCashbox.get(String(box.id));
+      const openingAmount = opening?.exists ? Number(opening.amount || 0) : 0;
+      openingTotal += openingAmount;
       cashboxesMap[Number(box.id)] = {
         id: Number(box.id),
         name: box.name_ar,
-        balance: 0,
+        openingBalance: openingAmount,
+        openingDate: opening?.date || null,
+        balance: openingAmount,
       };
     });
 
-    // حساب الإيرادات والمصروفات وأرصدة الصناديق
-    transactions.forEach((t) => {
-      const amount = Number(t.amount);
-      const id = Number(t.cashbox_id);
+    activeTransactions.forEach((transaction) => {
+      const amount = Number(transaction.amount || 0);
+      const id = Number(transaction.cashbox_id);
 
-      // سند قبض / إيراد = مدين
-      if (t.type === "IN") {
+      if (transaction.type === "IN") {
         income += amount;
-
-        if (cashboxesMap[id]) {
-          cashboxesMap[id].balance += amount;
-        }
-      }
-
-      // سند صرف / مصروف = دائن
-      if (t.type === "OUT") {
+        if (cashboxesMap[id]) cashboxesMap[id].balance += amount;
+      } else if (transaction.type === "OUT") {
         expense += amount;
-
-        if (cashboxesMap[id]) {
-          cashboxesMap[id].balance -= amount;
-        }
+        if (cashboxesMap[id]) cashboxesMap[id].balance -= amount;
       }
     });
 
-    // تجهيز آخر 10 عمليات
-    const transactionsData = lastTransactions.map((t) => {
-      return {
-        id: Number(t.id),
-        date: t.transaction_date,
-        cashbox: t.cashboxes?.name_ar || "-",
-        description: t.description || "-",
-
-        // سند القبض / الإيراد = مدين
-        debit:
-          t.type === "IN"
-            ? Number(t.amount)
-            : null,
-
-        // سند الصرف / المصروف = دائن
-        credit:
-          t.type === "OUT"
-            ? Number(t.amount)
-            : null,
-      };
+    const runningByCashbox = {};
+    const balanceAfterMap = new Map();
+    cashboxes.forEach((box) => {
+      const opening = openingByCashbox.get(String(box.id));
+      runningByCashbox[String(box.id)] = opening?.exists ? Number(opening.amount || 0) : 0;
     });
+
+    [...activeTransactions]
+      .sort((a, b) => {
+        const dateDiff = new Date(a.transaction_date) - new Date(b.transaction_date);
+        if (dateDiff !== 0) return dateDiff;
+        return Number(a.id - b.id);
+      })
+      .forEach((transaction) => {
+        const key = String(transaction.cashbox_id);
+        const amount = Number(transaction.amount || 0);
+        runningByCashbox[key] += transaction.type === "IN" ? amount : -amount;
+        balanceAfterMap.set(String(transaction.id), runningByCashbox[key]);
+      });
+
+    const lastTransactions = activeTransactions.slice(0, 10).map((transaction) => ({
+      id: Number(transaction.id),
+      date: transaction.transaction_date,
+      cashbox: transaction.cashboxes?.name_ar || "-",
+      description: transaction.description || "-",
+      debit: transaction.type === "IN" ? Number(transaction.amount) : null,
+      credit: transaction.type === "OUT" ? Number(transaction.amount) : null,
+      balanceAfter: Number(balanceAfterMap.get(String(transaction.id)) ?? transaction.balance_after ?? 0),
+    }));
 
     return res.json({
       selectedCashboxId,
-
-      currentBalance: income - expense,
-
+      openingBalance: openingTotal,
+      currentBalance: openingTotal + income - expense,
       todayIncome: income,
-
       todayExpense: expense,
-
-      todayTransactions: transactions.length,
-
+      todayTransactions: activeTransactions.length,
       cashboxes: Object.values(cashboxesMap),
-
-      lastTransactions: transactionsData,
+      lastTransactions,
     });
   } catch (error) {
     console.error("Dashboard Error:", error);
-
-    return res.status(500).json({
-      message: "Server error",
-    });
+    return res.status(500).json({ message: "Server error" });
   }
 };
 

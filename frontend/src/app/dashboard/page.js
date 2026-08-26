@@ -144,6 +144,10 @@ function StoreKeeperDashboard({ data, user }) {
             <span className="cb-warehouse-action-icon"><SvgIcon type="inventory" /></span>
             <span><strong>المخزون الحالي</strong><small>عرض رصيد الكروت والأساور</small></span>
           </Link>
+          <Link href="/inventory/reports" className="cb-warehouse-action neutral">
+            <span className="cb-warehouse-action-icon"><SvgIcon type="calendar" /></span>
+            <span><strong>تقارير المخزون</strong><small>تقرير يومي وشهري للكروت والأساور</small></span>
+          </Link>
         </section>
 
         <section className="cb-panel cb-warehouse-recent">
@@ -238,7 +242,7 @@ export default function DashboardPage() {
 
   const displayName = user.full_name || user.fullName || user.username || "المدير";
   const initial = String(displayName).trim().charAt(0) || "م";
-  const roleLabel = user.role === "CEO" ? "المالك" : user.role === "MANAGER" ? "مدير النظام" : user.role === "ACCOUNTANT" ? "محاسب" : user.role === "STORE_KEEPER" ? "أمين المستودع" : "مستخدم";
+  const roleLabel = user.role === "CEO" ? "المالك" : user.role === "MANAGER" ? "المدير المالي" : user.role === "ACCOUNTANT" ? "محاسب" : user.role === "STORE_KEEPER" ? "أمين المستودع" : "مستخدم";
   const recent = (data.lastTransactions || []).slice(0, 5);
 
   return (
@@ -403,6 +407,11 @@ export default function DashboardPage() {
                   <div key={box.id} className="cb-cashbox-card">
                     <div className="cb-cashbox-name">{box.name}</div>
                     <div className="cb-cashbox-balance">{formatMoney(box.balance)} ر.س</div>
+                    {box.openingDate && (
+                      <div className="mt-2 text-[10px] text-[#8c8171]">
+                        افتتاحي: {formatMoney(box.openingBalance)} ر.س · {box.openingDate}
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
@@ -418,6 +427,7 @@ export default function DashboardPage() {
                 </div>
               </div>
               <div className="cb-summary-list">
+                <div className="cb-summary-row"><span>إجمالي الرصيد الافتتاحي المثبت</span><strong>{formatMoney(data.openingBalance)} ر.س</strong></div>
                 <div className="cb-summary-row income"><span>إجمالي الإيرادات</span><strong>{formatMoney(data.todayIncome)} ر.س</strong></div>
                 <div className="cb-summary-row expense"><span>إجمالي المصروفات</span><strong>{formatMoney(data.todayExpense)} ر.س</strong></div>
                 <div className="cb-summary-row"><span>عدد العمليات</span><strong>{Number(data.todayTransactions || 0).toLocaleString("en-US")}</strong></div>

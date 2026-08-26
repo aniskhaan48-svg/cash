@@ -41,8 +41,17 @@ export default function Sidebar() {
 
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem("user") || "{}");
-    setRole(user.role || "");
-  }, []);
+    const nextRole = user.role || "";
+    setRole(nextRole);
+
+    if (
+      nextRole === "STORE_KEEPER" &&
+      pathname !== "/dashboard" &&
+      !pathname.startsWith("/inventory")
+    ) {
+      router.replace("/dashboard");
+    }
+  }, [pathname, router]);
 
   const logout = () => {
     localStorage.removeItem("token");
@@ -80,13 +89,16 @@ export default function Sidebar() {
             <NavLink href="/transactions" icon="add">إضافة عملية</NavLink>
             <NavLink href="/reports" icon="reports">التقارير</NavLink>
             <NavLink href="/cashbox-statement" icon="statement">كشف حساب الصندوق</NavLink>
+            {(role === "CEO" || role === "MANAGER") && (
+              <NavLink href="/opening-balance" icon="statement">الرصيد الافتتاحي</NavLink>
+            )}
           </>
         )}
 
         {(role === "CEO" || role === "MANAGER") && (
           <>
             <div className="cb-nav-separator" />
-            <NavLink href="/users" icon="users">المستخدمون</NavLink>
+            {role === "CEO" && <NavLink href="/users" icon="users">المستخدمون</NavLink>}
             <NavLink href="/settings" icon="settings">الإعدادات</NavLink>
           </>
         )}
@@ -97,6 +109,7 @@ export default function Sidebar() {
             <NavLink href="/inventory" icon="inventory">المخزون الحالي</NavLink>
             <NavLink href="/inventory/stock-in" icon="stockin">إدخال للمخزون</NavLink>
             <NavLink href="/inventory/consumption" icon="consumption">الاستهلاك اليومي</NavLink>
+            <NavLink href="/inventory/reports" icon="reports">تقارير المخزون</NavLink>
           </>
         )}
       </nav>

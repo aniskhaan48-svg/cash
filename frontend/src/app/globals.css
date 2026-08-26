@@ -1058,7 +1058,7 @@ textarea {
 
 .cb-current-stock-card { min-height: 220px; }
 .cb-current-stock-caption { margin-top: 8px; color: var(--cb-muted); font-size: 11px; }
-.cb-inventory-actions { grid-template-columns: repeat(2, minmax(0, 1fr)); margin-top: 18px; }
+.cb-inventory-actions { grid-template-columns: repeat(3, minmax(0, 1fr)); margin-top: 18px; }
 
 .cb-inventory-form-panel {
   max-width: 900px;

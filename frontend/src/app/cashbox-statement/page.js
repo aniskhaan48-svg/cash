@@ -12,6 +12,9 @@ export default function CashboxStatementPage() {
 
   const [statement, setStatement] = useState([]);
   const [openingBalance, setOpeningBalance] = useState(0);
+  const [closingBalance, setClosingBalance] = useState(0);
+  const [fixedOpeningBalance, setFixedOpeningBalance] = useState(0);
+  const [fixedOpeningDate, setFixedOpeningDate] = useState(null);
   const [loading, setLoading] = useState(false);
   const [searched, setSearched] = useState(false);
 
@@ -87,9 +90,7 @@ export default function CashboxStatementPage() {
     }
 
     if (fromDate > toDate) {
-      alert(
-        "تاريخ البداية يجب أن يكون قبل تاريخ النهاية"
-      );
+      alert("تاريخ البداية يجب أن يكون قبل تاريخ النهاية");
       return;
     }
 
@@ -97,90 +98,33 @@ export default function CashboxStatementPage() {
       setLoading(true);
       setSearched(false);
 
-      // ----------------------------
-      // الرصيد الافتتاحي
-      // ----------------------------
-
-      const previousDate =
-        getPreviousDate(fromDate);
-
-      const openingRes = await apiFetch(
-        `/api/statement?cashboxId=${cashboxId}&from=2000-01-01&to=${previousDate}`
-      );
-
-      if (!openingRes.ok) {
-        throw new Error(
-          `Opening Balance HTTP Error ${openingRes.status}`
-        );
-      }
-
-      const previousTransactions =
-        await openingRes.json();
-
-      const opening = calculateBalance(
-        previousTransactions
-      );
-
-      setOpeningBalance(opening);
-
-      // ----------------------------
-      // عمليات الفترة
-      // ----------------------------
-
       const statementRes = await apiFetch(
         `/api/statement?cashboxId=${cashboxId}&from=${fromDate}&to=${toDate}`
       );
 
       if (!statementRes.ok) {
-        throw new Error(
-          `Statement HTTP Error ${statementRes.status}`
-        );
+        throw new Error(`Statement HTTP Error ${statementRes.status}`);
       }
 
-      const data = await statementRes.json();
+      const result = await statementRes.json();
+      const rows = Array.isArray(result.transactions) ? result.transactions : [];
 
-      // ----------------------------
-      // الرصيد بعد كل عملية
-      // ----------------------------
-
-      let runningBalance = opening;
-
-      const transactionsWithBalance =
-        data.map((transaction) => {
-          const amount = Number(
-            transaction.amount
-          );
-
-          // سند قبض = مدين
-          if (transaction.type === "IN") {
-            runningBalance += amount;
-          }
-
-          // سند صرف = دائن
-          if (transaction.type === "OUT") {
-            runningBalance -= amount;
-          }
-
-          return {
-            ...transaction,
-            runningBalance,
-          };
-        });
-
+      setOpeningBalance(Number(result.openingBalance || 0));
+      setClosingBalance(Number(result.closingBalance || result.openingBalance || 0));
+      setFixedOpeningBalance(Number(result.fixedOpeningBalance || 0));
+      setFixedOpeningDate(result.fixedOpeningDate || null);
       setStatement(
-        transactionsWithBalance
+        rows.map((transaction) => ({
+          ...transaction,
+          runningBalance: Number(
+            transaction.runningBalance ?? transaction.balance_after ?? 0
+          ),
+        }))
       );
-
       setSearched(true);
     } catch (error) {
-      console.error(
-        "Statement Error:",
-        error
-      );
-
-      alert(
-        "حدث خطأ أثناء تحميل كشف الحساب"
-      );
+      console.error("Statement Error:", error);
+      alert("حدث خطأ أثناء تحميل كشف الحساب");
     } finally {
       setLoading(false);
     }
@@ -209,13 +153,6 @@ export default function CashboxStatementPage() {
         : total,
     0
   );
-
-  const closingBalance =
-    statement.length > 0
-      ? statement[
-          statement.length - 1
-        ].runningBalance
-      : openingBalance;
 
   const formatNumber = (value) => {
     return Number(
@@ -352,6 +289,11 @@ export default function CashboxStatementPage() {
               <p className="mt-2 text-gray-600">
                 من {fromDate} إلى {toDate}
               </p>
+              {fixedOpeningDate && (
+                <p className="mt-2 text-sm text-amber-700">
+                  الرصيد الافتتاحي المثبت: {formatNumber(fixedOpeningBalance)} ريال — بتاريخ {fixedOpeningDate}
+                </p>
+              )}
 
             </div>
 
@@ -563,6 +505,16 @@ export default function CashboxStatementPage() {
                       </tr>
                     )
                   )}
+
+                  {/* الرصيد بعد آخر حركة */}
+                  <tr className="bg-[#f4ead6] border-t-2 border-[#c99a42]">
+                    <td className="border p-3" colSpan="7">
+                      <strong>الرصيد الختامي بعد آخر حركة في الفترة</strong>
+                    </td>
+                    <td className="border p-3 text-center font-bold text-xl">
+                      {formatNumber(closingBalance)}
+                    </td>
+                  </tr>
 
                 </tbody>
 
