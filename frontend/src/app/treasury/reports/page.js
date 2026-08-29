@@ -79,6 +79,21 @@ export default function TreasuryReportsPage() {
     loadReport({ from: nextFrom, to: nextTo, entity });
   };
 
+  const printReport = (mode) => {
+    if (!data) return;
+    const body = document.body;
+    body.classList.remove("print-executive", "print-detailed");
+    body.classList.add(mode === "executive" ? "print-executive" : "print-detailed");
+
+    const cleanup = () => {
+      body.classList.remove("print-executive", "print-detailed");
+      window.removeEventListener("afterprint", cleanup);
+    };
+
+    window.addEventListener("afterprint", cleanup);
+    window.setTimeout(() => window.print(), 80);
+  };
+
   const exportExcel = async () => {
     if (!data) return;
     const XLSXModule = await import("xlsx");
@@ -136,7 +151,11 @@ export default function TreasuryReportsPage() {
       <main className="cb-dashboard">
         <header className="cb-topbar">
           <div><h1 className="cb-welcome-title">التقرير المالي الشامل</h1><p className="cb-welcome-subtitle">اختر أي فترة: يوم، 3 أيام، أسبوع، شهر أو فترة مخصصة — تولان أو الملقا أو الجميع</p></div>
-          <div className="flex gap-2 flex-wrap"><button onClick={exportExcel} disabled={!data} className="cb-outline-button">Excel</button><button onClick={() => window.print()} disabled={!data} className="cb-outline-button">PDF / طباعة</button></div>
+          <div className="flex gap-2 flex-wrap print:hidden">
+            <button onClick={exportExcel} disabled={!data} className="cb-outline-button">Excel</button>
+            <button onClick={() => printReport("executive")} disabled={!data} className="cb-outline-button">التقرير التنفيذي — صفحة واحدة</button>
+            <button onClick={() => printReport("detailed")} disabled={!data} className="cb-outline-button">التقرير التفصيلي — كامل</button>
+          </div>
         </header>
 
         <section className="cb-panel mb-5 print:hidden"><div className="cb-panel-body">
@@ -156,7 +175,89 @@ export default function TreasuryReportsPage() {
         </div></section>
 
         {data && (
-          <div id="executive-report">
+          <>
+            <section id="executive-print-sheet" className="cb-exec-print-sheet print-only" dir="rtl">
+              <header className="cb-exec-print-header">
+                <div>
+                  <div className="cb-exec-brand">CashBox Cloud</div>
+                  <h1>التقرير التنفيذي</h1>
+                  <p>ملخص الإدارة العليا للفترة المحددة</p>
+                </div>
+                <div className="cb-exec-period">
+                  <strong>{data.entity_name}</strong>
+                  <span>{data.from} — {data.to}</span>
+                </div>
+              </header>
+
+              <div className="cb-exec-kpis">
+                <div><span>الإيرادات</span><strong className="positive">{money(data.summary.totalIncome)}</strong><small>ر.س</small></div>
+                <div><span>المصروفات</span><strong className="negative">{money(data.summary.totalExpense)}</strong><small>ر.س</small></div>
+                <div><span>صافي الحركة</span><strong>{money(data.summary.netIncomeExpense)}</strong><small>ر.س</small></div>
+                <div><span>رصيد الصناديق</span><strong>{money(data.summary.cashboxClosing)}</strong><small>ر.س</small></div>
+                <div><span>البنوك والمحافظ</span><strong>{money(data.summary.bankWalletClosing)}</strong><small>ر.س</small></div>
+                <div className="liquidity"><span>إجمالي السيولة</span><strong>{money(data.summary.totalLiquidity)}</strong><small>ر.س</small></div>
+              </div>
+
+              <div className="cb-exec-grid">
+                <section className="cb-exec-box daily">
+                  <h2>الملخص اليومي</h2>
+                  <table>
+                    <thead><tr><th>اليوم</th><th>الإيرادات</th><th>المصروفات</th><th>العهد</th><th>الحركات</th></tr></thead>
+                    <tbody>
+                      {(data.daily || []).slice(0, 7).map((day) => (
+                        <tr key={day.date}><td>{day.date}</td><td className="positive">{money(day.income)}</td><td className="negative">{money(day.expense)}</td><td>{money(day.advances)}</td><td>{day.count}</td></tr>
+                      ))}
+                      {(data.daily || []).length === 0 && <tr><td colSpan="5">لا توجد حركة في الفترة</td></tr>}
+                    </tbody>
+                  </table>
+                </section>
+
+                <section className="cb-exec-box expenses">
+                  <h2>أكبر المصروفات حسب الحساب</h2>
+                  <div className="cb-exec-list">
+                    {(data.expenseByAccount || []).slice(0, 5).map((row, index) => (
+                      <div key={row.name}><span><b>{index + 1}</b>{row.name}</span><strong>{money(row.amount)} ر.س</strong></div>
+                    ))}
+                    {(data.expenseByAccount || []).length === 0 && <p>لا توجد مصروفات في الفترة</p>}
+                  </div>
+                </section>
+
+                <section className="cb-exec-box balances">
+                  <h2>أرصدة نهاية الفترة</h2>
+                  <div className="cb-exec-balance-columns">
+                    <div>
+                      <h3>الصناديق</h3>
+                      {(data.cashboxes || []).slice(0, 4).map((box) => <p key={box.id}><span>{box.name} — {box.entity_name}</span><strong>{money(box.balance)}</strong></p>)}
+                    </div>
+                    <div>
+                      <h3>البنوك والمحافظ</h3>
+                      {(data.accounts || []).slice(0, 6).map((account) => <p key={account.id}><span>{account.name_ar} — {account.entity_name}</span><strong>{money(account.current_balance)}</strong></p>)}
+                    </div>
+                  </div>
+                </section>
+
+                <section className="cb-exec-box treasury">
+                  <h2>الخزينة والعهد</h2>
+                  <div className="cb-exec-mini-kpis">
+                    <div><span>العهد المصروفة</span><strong>{money(data.summary.advancesIssued)}</strong></div>
+                    <div><span>العهد القائمة</span><strong>{money(data.summary.outstandingAdvances)}</strong></div>
+                    <div><span>سداد الموردين</span><strong>{money(data.summary.supplierPayments)}</strong></div>
+                    <div><span>تحويلات صادرة</span><strong>{money(data.summary.transfersOut)}</strong></div>
+                  </div>
+                  <h2 className="inventory-title">المخزون</h2>
+                  <div className="cb-exec-inventory">
+                    {(data.inventory || []).slice(0, 4).map((item) => <div key={item.id}><span>{item.name}</span><strong>{Number(item.closingStock || 0).toLocaleString("en-US")} {item.unit}</strong></div>)}
+                  </div>
+                </section>
+              </div>
+
+              <footer className="cb-exec-footer">
+                <span>عدد الحركات: {data.summary.movementCount}</span>
+                <span>تم إنشاء التقرير من نظام CashBox Cloud</span>
+              </footer>
+            </section>
+
+            <div id="executive-report">
             <section className="cb-panel mb-5"><div className="cb-panel-body">
               <div className="flex justify-between gap-4 flex-wrap border-b border-[#e5dcc9] pb-4 mb-4"><div><div className="text-sm text-gray-500">CashBox Cloud</div><h2 className="text-2xl font-bold text-[#4b4a24]">التقرير المالي للفترة</h2></div><div className="text-left"><div className="font-bold">{data.entity_name}</div><div>{data.from} — {data.to}</div></div></div>
               <div className="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-8 gap-3">
@@ -209,6 +310,7 @@ export default function TreasuryReportsPage() {
 
             <section className="cb-panel"><div className="cb-panel-body"><div className="cb-panel-head"><div><h2 className="cb-panel-title">ملخص المخزون حتى نهاية الفترة</h2><p className="cb-panel-subtitle">الكروت والأساور حسب الحركات المسجلة في المستودع</p></div></div><div className="grid grid-cols-1 md:grid-cols-3 gap-3">{(data.inventory || []).map((item) => <div key={item.id} className="rounded-xl bg-[#f7f3e9] p-4"><div className="text-sm text-gray-500">{item.name}</div><div className="text-2xl font-bold mt-1">{Number(item.closingStock || 0).toLocaleString("en-US")} {item.unit}</div></div>)}</div></div></section>
           </div>
+          </>
         )}
       </main>
     </div>
