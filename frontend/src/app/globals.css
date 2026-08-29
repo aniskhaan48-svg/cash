@@ -803,6 +803,7 @@ textarea {
   }
   .cb-brand { padding-bottom: 13px; }
   .cb-nav { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); padding-top: 13px; }
+  .cb-nav-group-title, .cb-nav-separator { grid-column: 1 / -1; }
   .cb-security-card { display: none; }
   .cb-dashboard { padding: 14px; }
   .cb-topbar { align-items: flex-start; flex-direction: column; }
@@ -1170,4 +1171,34 @@ textarea {
   .cb-inventory-entry-row { grid-template-columns: 1fr; }
   .cb-warehouse-movement-row { grid-template-columns: 36px minmax(0, 1fr); }
   .cb-warehouse-movement-row .cb-transaction-amount { grid-column: 2; }
+}
+
+.cb-nav-group-title {
+  padding: 2px 14px 4px;
+  color: #d8b66f;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.2px;
+}
+
+@media print {
+  .cb-sidebar,
+  .cb-topbar button,
+  .cb-topbar a,
+  .print\:hidden {
+    display: none !important;
+  }
+  .cb-shell,
+  .cb-dashboard {
+    display: block !important;
+    width: 100% !important;
+    background: white !important;
+  }
+  .cb-dashboard {
+    padding: 0 !important;
+  }
+  .cb-panel {
+    box-shadow: none !important;
+    break-inside: avoid;
+  }
 }

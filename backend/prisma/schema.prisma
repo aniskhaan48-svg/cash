@@ -36,7 +36,8 @@ model categories {
   account_group String          @default("EXPENSE") @db.VarChar(30)
   is_active     Boolean?        @default(true)
   created_at    DateTime?       @default(now()) @db.DateTime(0)
-  transactions  transactions[]
+  transactions      transactions[]
+  treasury_entries  treasury_entries[]
 }
 
 model settings {
@@ -80,7 +81,8 @@ model users {
   is_active     Boolean?       @default(true)
   created_at    DateTime?      @default(now()) @db.DateTime(0)
   updated_at    DateTime?      @default(now()) @db.DateTime(0)
-  transactions  transactions[]
+  transactions      transactions[]
+  treasury_entries  treasury_entries[]
 }
 
 model items {
@@ -104,6 +106,65 @@ model stock_movements {
   item          items     @relation(fields: [item_id], references: [id])
 
   @@index([item_id], map: "stock_movements_item_id_fkey")
+}
+
+
+model treasury_accounts {
+  id                  BigInt                 @id @default(autoincrement())
+  entity_code         String                 @db.VarChar(20)
+  name_ar             String                 @db.VarChar(255)
+  account_type        String                 @db.VarChar(30)
+  opening_balance     Decimal                @default(0) @db.Decimal(18, 2)
+  opening_date        DateTime               @db.Date
+  is_active           Boolean                @default(true)
+  created_at          DateTime?              @default(now()) @db.DateTime(0)
+  updated_at          DateTime?              @default(now()) @db.DateTime(0)
+  source_lines        treasury_entry_lines[] @relation("TreasurySourceAccount")
+  destination_lines   treasury_entry_lines[] @relation("TreasuryDestinationAccount")
+
+  @@index([entity_code])
+  @@index([is_active])
+}
+
+model treasury_entries {
+  id            BigInt                 @id @default(autoincrement())
+  entry_date    DateTime               @db.Date
+  movement_type String                 @db.VarChar(40)
+  beneficiary   String?                @db.VarChar(255)
+  description   String?                @db.Text
+  category_id   BigInt?
+  created_by    BigInt
+  is_deleted    Boolean                @default(false)
+  created_at    DateTime?              @default(now()) @db.DateTime(0)
+  updated_at    DateTime?              @default(now()) @db.DateTime(0)
+  user          users                  @relation(fields: [created_by], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  category      categories?            @relation(fields: [category_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  lines         treasury_entry_lines[]
+
+  @@index([entry_date])
+  @@index([movement_type])
+  @@index([category_id])
+  @@index([created_by])
+  @@index([is_deleted])
+}
+
+model treasury_entry_lines {
+  id                     BigInt             @id @default(autoincrement())
+  entry_id               BigInt
+  entity_code            String             @db.VarChar(20)
+  source_account_id      BigInt?
+  destination_account_id BigInt?
+  amount                 Decimal            @db.Decimal(18, 2)
+  note                   String?            @db.VarChar(500)
+  created_at             DateTime?          @default(now()) @db.DateTime(0)
+  entry                   treasury_entries  @relation(fields: [entry_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  source_account          treasury_accounts? @relation("TreasurySourceAccount", fields: [source_account_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  destination_account     treasury_accounts? @relation("TreasuryDestinationAccount", fields: [destination_account_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([entry_id])
+  @@index([entity_code])
+  @@index([source_account_id])
+  @@index([destination_account_id])
 }
 
 enum transactions_type {

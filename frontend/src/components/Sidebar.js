@@ -93,6 +93,13 @@ export default function Sidebar() {
             {(role === "CEO" || role === "MANAGER") && (
               <NavLink href="/opening-balance" icon="statement">الرصيد الافتتاحي</NavLink>
             )}
+
+            <div className="cb-nav-separator" />
+            <div className="cb-nav-group-title">الخزينة والتحويلات</div>
+            <NavLink href="/treasury" icon="add">الإدخال اليومي</NavLink>
+            <NavLink href="/treasury/advances" icon="users">العهد</NavLink>
+            <NavLink href="/treasury/accounts" icon="accounts">البنوك والمحافظ</NavLink>
+            <NavLink href="/treasury/reports" icon="reports">التقرير الشامل</NavLink>
           </>
         )}
 
