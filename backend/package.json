@@ -10,7 +10,7 @@
     "prisma:generate": "prisma generate",
     "prisma:pull": "prisma db pull",
     "check": "node --check src/server.js",
-    "test": "echo \"No automated tests configured\"",
+    "test": "node --test tests/payroll.test.js",
     "build": "prisma generate --schema=prisma/schema.prisma",
     "healthcheck": "node -e \"fetch('http://127.0.0.1:'+(process.env.PORT||3001)+'/health').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))\""
   },

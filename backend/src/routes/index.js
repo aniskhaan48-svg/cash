@@ -12,6 +12,7 @@ const cashboxesRoutes = require("./cashboxes");
 const statementRoutes = require("./statement");
 const openingBalancesRoutes = require("./openingBalances");
 const treasuryRoutes = require("./treasury");
+const payrollRoutes = require("./payroll");
 const { authenticate, authorize } = require("../middleware/auth");
 
 router.get("/", (req, res) => {
@@ -80,6 +81,13 @@ router.use(
   authenticate,
   authorize("CEO", "MANAGER", "ACCOUNTANT"),
   treasuryRoutes
+);
+
+router.use(
+  "/api/payroll",
+  authenticate,
+  authorize("CEO", "MANAGER", "ACCOUNTANT"),
+  payrollRoutes
 );
 
 module.exports = router;

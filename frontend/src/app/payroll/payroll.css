@@ -1,0 +1,173 @@
+.payroll-root{flex:1;min-width:0;padding:30px 26px 70px;font-size:14px;color:#332b21}
+.payroll-toolbar{display:flex;align-items:center;justify-content:space-between;gap:18px;margin-bottom:20px;flex-wrap:wrap}
+.payroll-toolbar h1{font-size:28px;font-weight:800;margin:0 0 6px}.payroll-toolbar p{color:#8c8171;margin:0}
+.payroll-toolbar-actions,.payroll-actions,.payroll-report-buttons{display:flex;flex-wrap:wrap;gap:9px;align-items:center}
+.payroll-root button{border:1px solid #d8c9ab;background:#fff9ec;border-radius:10px;padding:10px 14px;cursor:pointer;font-weight:700;color:#5b4624}
+.payroll-root button:hover:not(:disabled){background:#f2e4ca}.payroll-root button:disabled{opacity:.5;cursor:not-allowed}
+.payroll-root button.active,.payroll-root button.payroll-primary{background:#43452a;color:#fff4d9;border-color:#43452a}
+.payroll-card{border:1px solid #e9dcc7;border-radius:18px;background:#fffdf9;box-shadow:0 7px 22px rgba(40,35,20,.045);padding:22px;margin-bottom:20px}
+.payroll-card h2{font-size:20px;font-weight:800;margin:0}.payroll-card-head{display:flex;justify-content:space-between;gap:14px;align-items:center;flex-wrap:wrap;margin-bottom:18px}.payroll-card-head>span,.payroll-hint{font-size:12px;color:#8c8171}
+.payroll-input-grid,.payroll-map-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-bottom:19px;align-items:end}
+.payroll-map-grid{grid-template-columns:repeat(5,minmax(0,1fr))}
+.payroll-root label{display:flex;flex-direction:column;gap:7px;color:#5b513f;font-size:13px;font-weight:700;min-width:0}
+.payroll-root input,.payroll-root select{border:1px solid #ded5c7;border-radius:9px;min-height:40px;padding:7px 9px;background:white;max-width:100%;width:100%;color:#30281b}
+.payroll-map-grid b{color:#c34b2e}.payroll-file{color:#6d5b37;align-self:center;overflow-wrap:anywhere}
+.payroll-mapping,.payroll-preview{margin-top:23px;padding-top:23px;border-top:1px solid #eee2ce}.payroll-hint{margin:12px 0 0;line-height:1.8}
+.payroll-summary-strip{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:18px 0}
+.payroll-summary-strip>span{display:flex;flex-direction:column;gap:7px;padding:14px;border:1px solid #ecdcbf;background:#fbf4e6;border-radius:12px;color:#7c6c54}.payroll-summary-strip strong{font-size:18px;color:#373b22}
+.payroll-scroll{overflow:auto;border:1px solid #eee4d5;border-radius:12px;max-width:100%}.payroll-table{width:100%;border-collapse:collapse;text-align:right;white-space:nowrap;font-size:12px}
+.payroll-table th{background:#f4ebd9;color:#574627;font-weight:800}.payroll-table th,.payroll-table td{padding:10px 9px;border-bottom:1px solid #efe8dd}.payroll-table tr:nth-child(even){background:#fffaf2}.payroll-table tfoot th{background:#e6dfcc}
+.payroll-table .number-cell{text-align:left;font-variant-numeric:tabular-nums}.payroll-edit-table input{min-width:86px;width:110px;font-size:12px;height:36px;min-height:36px}
+.payroll-edit-table .numeric{direction:ltr;text-align:left;max-width:110px}.payroll-mini-remove{font-size:11px;padding:7px!important}
+.payroll-actions{justify-content:flex-end;margin-top:20px}.payroll-alert{border:1px solid;padding:12px 16px;border-radius:10px;margin-bottom:17px;font-weight:700}
+.payroll-alert.error{color:#923a25;border-color:#f4c4b0;background:#fff0e7}.payroll-alert.success{color:#326239;border-color:#c7ddc7;background:#eff9ed}.payroll-alert.warning{color:#87630d;border-color:#ecd499;background:#fff8dd}
+.payroll-info{border:1px dashed #dfc796;background:#fff9ed;border-radius:12px;padding:22px;color:#806639}
+.payroll-filters{display:flex;align-items:end;gap:16px;flex-wrap:wrap}.payroll-filters label{width:210px}.payroll-month-list{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:16px}
+.payroll-month-list button{display:flex;justify-content:space-between;flex-direction:column;gap:9px;text-align:right}.payroll-month-list span{color:#847862}
+.payroll-report-head{display:flex;gap:20px;align-items:start;justify-content:space-between;flex-wrap:wrap;border-bottom:1px solid #e8d9bd;padding-bottom:20px}
+.payroll-report-head h3{font-size:17px;font-weight:800;color:#957128;margin-top:10px}.payroll-report-head p{color:#8e8470;margin-top:6px;font-size:12px}.payroll-subtitle{font-size:16px;font-weight:800;margin:25px 0 14px;color:#45452a}
+@media(max-width:1150px){.payroll-map-grid{grid-template-columns:repeat(3,1fr)}.payroll-summary-strip{grid-template-columns:repeat(2,1fr)}.payroll-month-list{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:750px){.payroll-root{padding:16px}.payroll-input-grid,.payroll-map-grid,.payroll-month-list{grid-template-columns:1fr}.payroll-summary-strip{grid-template-columns:1fr 1fr}}
+@page payroll-landscape {size:A4 landscape;margin:9mm}
+@media print{
+ body.payroll-print-summary,body.payroll-print-detail{background:white!important;color:black!important}
+ body.payroll-print-summary .cb-sidebar,body.payroll-print-detail .cb-sidebar{display:none!important}
+ body.payroll-print-summary .no-print,body.payroll-print-detail .no-print{display:none!important}
+ body.payroll-print-summary .payroll-root,body.payroll-print-detail .payroll-root{width:100%!important;padding:0!important;margin:0!important;background:white!important}
+ body.payroll-print-summary .payroll-report,body.payroll-print-detail .payroll-report{page:payroll-landscape;box-shadow:none!important;border:0!important;margin:0!important;padding:0!important;border-radius:0!important}
+ body.payroll-print-summary .payroll-card:not(.payroll-report),body.payroll-print-detail .payroll-card:not(.payroll-report){display:none!important}
+ body.payroll-print-summary .payroll-detail-section{display:none!important}
+ body.payroll-print-detail .payroll-detail-section{display:block!important}
+ .payroll-summary-strip{display:flex!important;gap:8px!important;break-inside:avoid}.payroll-summary-strip>span{flex:1!important;padding:6px!important;font-size:10px!important;border-radius:3px!important}
+ .payroll-summary-strip strong{font-size:13px!important}
+ .payroll-scroll{overflow:visible!important;border:none!important}
+ .payroll-table{font-size:9px!important;white-space:normal!important}.payroll-table th,.payroll-table td{padding:4px 3px!important;word-break:break-word}
+ .payroll-report-head{margin-bottom:8px;padding-bottom:6px}.payroll-report-head h2{font-size:16px!important}.payroll-report-head h3{font-size:12px!important}
+ .payroll-table thead{display:table-header-group}.payroll-table tr{break-inside:avoid}
+}
+
+/* Payroll stage 1: ordered RTL columns; fingerprint shown with worker name. */
+.payroll-worker-cell{min-width:260px;white-space:normal}
+.payroll-worker-cell>input{width:100%!important;min-width:215px!important;text-align:right!important;direction:rtl!important}
+.payroll-worker-meta{display:flex;align-items:center;gap:6px;margin-top:6px;white-space:nowrap;font-size:11px;color:#756548}
+.payroll-worker-meta input{width:78px!important;min-width:78px!important;max-width:78px!important;direction:ltr;text-align:center}
+.payroll-edit-table input[readonly]{background:#e9efdc;color:#273f21;font-weight:800;border-color:#cfdbc8;cursor:default}
+.payroll-worker-code{display:block;font-size:10px;color:#78694c;margin-top:3px;font-weight:400}
+
+/* Stage 2: leave payment editing and annual payroll summary. */
+.payroll-summary-strip{grid-template-columns:repeat(auto-fit,minmax(170px,1fr))}
+.payroll-leave-import{border:1px solid #e4d6b7;border-radius:13px;background:#fffbf2;padding:18px;margin:22px 0}
+.payroll-leave-import h4{font-size:15px;margin:0 0 8px}
+.payroll-leave-import>input{max-width:420px;margin:12px 0}
+.payroll-leave-cell input{width:95px;min-width:95px;max-width:95px;direction:ltr;text-align:left;margin-bottom:5px}
+.payroll-leave-cell button{font-size:11px;padding:7px 9px;margin-right:5px}
+.payroll-annual-detail{min-width:4300px}
+.payroll-print-only{display:none}
+@media print{
+ .payroll-print-only{display:inline!important}
+ .payroll-leave-cell .no-print{display:none!important}
+ .payroll-annual-detail{min-width:0!important;font-size:5px!important}
+ .payroll-annual-detail td,.payroll-annual-detail th{padding:2px!important}
+}
+
+
+/* Layout-only payroll fix — 2026-11-02.
+   Fixed column allocation prevents the worker-name cell from pushing amounts
+   away from their column headings. No data, math, or API behavior changes. */
+.payroll-monthly-grid {
+  width: 100%;
+  min-width: 790px;
+  table-layout: fixed;
+  direction: rtl;
+  border-collapse: collapse;
+}
+.payroll-monthly-grid th:first-child,
+.payroll-monthly-grid td:first-child {
+  width: 20%;
+  max-width: 20%;
+  text-align: right;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+.payroll-monthly-grid th:not(:first-child),
+.payroll-monthly-grid td:not(:first-child) {
+  text-align: center;
+  vertical-align: middle;
+  min-width: 0;
+  font-variant-numeric: tabular-nums;
+}
+.payroll-monthly-grid td:not(:first-child) input,
+.payroll-monthly-grid .numeric {
+  display: block;
+  width: min(100%, 125px) !important;
+  max-width: 125px !important;
+  min-width: 0 !important;
+  margin: 0 auto;
+  direction: ltr;
+  text-align: center !important;
+  box-sizing: border-box;
+}
+.payroll-monthly-grid .payroll-worker-cell {
+  width: 20%;
+  min-width: 0;
+  max-width: 20%;
+  white-space: normal;
+}
+.payroll-root .payroll-monthly-grid .payroll-worker-cell > input {
+  display: block;
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  box-sizing: border-box;
+  text-align: right !important;
+}
+.payroll-monthly-grid .payroll-worker-meta {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 4px;
+  white-space: normal;
+}
+.payroll-monthly-grid .payroll-worker-meta input {
+  width: 60px !important;
+  min-width: 0 !important;
+  max-width: 60px !important;
+  text-align: center;
+}
+.payroll-monthly-grid .payroll-worker-meta .payroll-mini-remove {
+  padding: 5px 7px !important;
+}
+/* Annual month summary: equal and centered amount columns, independently sized month. */
+.payroll-year-summary {
+  table-layout: fixed;
+  min-width: 820px;
+  direction: rtl;
+}
+.payroll-year-summary th,
+.payroll-year-summary td {
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+.payroll-year-summary th:first-child,
+.payroll-year-summary td:first-child {
+  width: 15%;
+  text-align: right;
+}
+/* Annual employee view is intentionally scrollable: 12 months must remain readable. */
+.payroll-annual-compact { min-width: 1860px; direction: rtl; }
+.payroll-annual-compact th,
+.payroll-annual-compact td { text-align: center; font-variant-numeric: tabular-nums; }
+.payroll-annual-compact th:nth-child(2),
+.payroll-annual-compact td:nth-child(2) { min-width: 185px; max-width: 210px; white-space: normal; text-align: right; }
+@media print {
+  .payroll-monthly-grid, .payroll-year-summary, .payroll-annual-compact {
+    min-width: 0 !important;
+    width: 100% !important;
+  }
+  .payroll-monthly-grid td,
+  .payroll-monthly-grid th { text-align: center; }
+  .payroll-monthly-grid td:first-child,
+  .payroll-monthly-grid th:first-child { text-align: right; }
+  .payroll-monthly-grid .payroll-worker-cell { min-width: 0 !important; }
+}

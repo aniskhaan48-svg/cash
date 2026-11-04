@@ -93,6 +93,54 @@ async function ensureSchema() {
     )
   `);
 
+  // Salary registers: separate tables, no changes to existing financial balances.
+  await prisma.$executeRawUnsafe(`
+    CREATE TABLE IF NOT EXISTS payroll_months (
+      id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+      month_key VARCHAR(7) NOT NULL,
+      file_name VARCHAR(255) NULL,
+      created_by BIGINT NOT NULL,
+      created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      UNIQUE KEY payroll_month_key_unique (month_key)
+    )
+  `);
+
+  await prisma.$executeRawUnsafe(`
+    CREATE TABLE IF NOT EXISTS payroll_rows (
+      id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+      month_id BIGINT NOT NULL,
+      employee_key VARCHAR(255) NOT NULL,
+      employee_code VARCHAR(100) NULL,
+      employee_name VARCHAR(255) NOT NULL,
+      base_salary DECIMAL(18,2) NOT NULL DEFAULT 0,
+      overtime DECIMAL(18,2) NOT NULL DEFAULT 0,
+      allowances DECIMAL(18,2) NOT NULL DEFAULT 0,
+      bonuses DECIMAL(18,2) NOT NULL DEFAULT 0,
+      deductions DECIMAL(18,2) NOT NULL DEFAULT 0,
+      advances DECIMAL(18,2) NOT NULL DEFAULT 0,
+      net_salary DECIMAL(18,2) NOT NULL DEFAULT 0,
+      notes VARCHAR(500) NULL,
+      UNIQUE KEY payroll_month_employee_unique (month_id, employee_key),
+      INDEX idx_payroll_employee (employee_key)
+    )
+  `);
+
+  // One annual leave payment per employee and year. Independent from payroll months.
+  await prisma.$executeRawUnsafe(`
+    CREATE TABLE IF NOT EXISTS payroll_leave_allowances (
+      id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+      year_key VARCHAR(4) NOT NULL,
+      employee_key VARCHAR(255) NOT NULL,
+      amount DECIMAL(18,2) NOT NULL DEFAULT 0,
+      source_file VARCHAR(255) NULL,
+      updated_by BIGINT NOT NULL,
+      created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      UNIQUE KEY payroll_leave_year_employee_unique (year_key, employee_key)
+    )
+  `);
+
   const treasuryAccountCount = await prisma.treasury_accounts.count();
   if (treasuryAccountCount === 0) {
     const riyadhDateKey = new Intl.DateTimeFormat("en-CA", {
