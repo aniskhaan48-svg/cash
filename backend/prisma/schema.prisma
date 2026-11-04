@@ -83,6 +83,7 @@ model users {
   updated_at    DateTime?      @default(now()) @db.DateTime(0)
   transactions      transactions[]
   treasury_entries  treasury_entries[]
+  payroll_months     payroll_months[]
 }
 
 model items {
@@ -182,4 +183,52 @@ enum users_role {
   MANAGER
   ACCOUNTANT
   STORE_KEEPER
+}
+
+
+// Monthly salary registers are independent of cashbox and treasury movements.
+model payroll_months {
+  id          BigInt        @id @default(autoincrement())
+  month_key   String        @unique(map: "payroll_month_key_unique") @db.VarChar(7)
+  file_name   String?       @db.VarChar(255)
+  created_by  BigInt
+  created_at  DateTime      @default(now()) @db.DateTime(0)
+  updated_at  DateTime      @default(now()) @db.DateTime(0)
+  user        users         @relation(fields: [created_by], references: [id])
+  rows        payroll_rows[]
+}
+
+model payroll_rows {
+  id              BigInt         @id @default(autoincrement())
+  month_id        BigInt
+  employee_key    String         @db.VarChar(255)
+  employee_code   String?        @db.VarChar(100)
+  employee_name   String         @db.VarChar(255)
+  base_salary     Decimal        @default(0) @db.Decimal(18, 2)
+  overtime        Decimal        @default(0) @db.Decimal(18, 2)
+  allowances      Decimal        @default(0) @db.Decimal(18, 2)
+  bonuses         Decimal        @default(0) @db.Decimal(18, 2)
+  deductions      Decimal        @default(0) @db.Decimal(18, 2)
+  advances        Decimal        @default(0) @db.Decimal(18, 2)
+  net_salary      Decimal        @db.Decimal(18, 2)
+  notes           String?        @db.VarChar(500)
+  month           payroll_months @relation(fields: [month_id], references: [id], onDelete: Cascade)
+
+  @@unique([month_id, employee_key], map: "payroll_month_employee_unique")
+  @@index([employee_key])
+}
+
+// Annual leave amounts are stored independently so re-importing a month
+// cannot accidentally add the leave payment twice.
+model payroll_leave_allowances {
+  id           BigInt   @id @default(autoincrement())
+  year_key     String   @db.VarChar(4)
+  employee_key String   @db.VarChar(255)
+  amount       Decimal  @default(0) @db.Decimal(18, 2)
+  source_file  String?  @db.VarChar(255)
+  updated_by   BigInt
+  created_at   DateTime @default(now()) @db.DateTime(0)
+  updated_at   DateTime @default(now()) @db.DateTime(0)
+
+  @@unique([year_key, employee_key], map: "payroll_leave_year_employee_unique")
 }

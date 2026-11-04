@@ -21,6 +21,7 @@ const Icon = ({ name }) => {
     add: <><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></>,
     reports: <><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></>,
     statement: <><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></>,
+    payroll: <><path d="M3 7h18M5 7V5h14v14H5V7Zm4 4h6m-6 4h3M17 11h.01M17 15h.01"/></>,
     users: <><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></>,
     accounts: <><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 8h10M7 12h4M15 12h2M7 16h5M16 16h1"/></>,
     settings: <><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.8 1.8 0 0 0 .36 1.98l.06.06-2.78 2.78-.06-.06A1.8 1.8 0 0 0 15 19.4a1.8 1.8 0 0 0-1 .6 1.8 1.8 0 0 0-.4 1.14V21H9.6v-.09A1.8 1.8 0 0 0 8.4 19.4a1.8 1.8 0 0 0-1.98.36l-.06.06-2.78-2.78.06-.06A1.8 1.8 0 0 0 4 15a1.8 1.8 0 0 0-.6-1 1.8 1.8 0 0 0-1.14-.4H2V9.6h.09A1.8 1.8 0 0 0 4 8.4a1.8 1.8 0 0 0-.36-1.98l-.06-.06 2.78-2.78.06.06A1.8 1.8 0 0 0 8.4 4a1.8 1.8 0 0 0 1-.6A1.8 1.8 0 0 0 9.8 2.26V2h4v.09A1.8 1.8 0 0 0 15 4a1.8 1.8 0 0 0 1.98-.36l.06-.06 2.78 2.78-.06.06A1.8 1.8 0 0 0 19.4 8.4a1.8 1.8 0 0 0 .6 1 1.8 1.8 0 0 0 1.14.4H21v4h-.09A1.8 1.8 0 0 0 19.4 15Z"/></>,
@@ -35,6 +36,16 @@ const Icon = ({ name }) => {
   return <svg {...common}>{icons[name]}</svg>;
 };
 
+const NavLink = ({ href, icon, children }) => {
+  const pathname = usePathname();
+  return (
+    <Link href={href} className={`cb-nav-link ${pathname === href ? "active" : ""}`}>
+      <Icon name={icon} />
+      <span>{children}</span>
+    </Link>
+  );
+};
+
 export default function Sidebar() {
   const [role, setRole] = useState("");
   const pathname = usePathname();
@@ -43,6 +54,7 @@ export default function Sidebar() {
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem("user") || "{}");
     const nextRole = user.role || "";
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setRole(nextRole);
 
     if (
@@ -61,15 +73,6 @@ export default function Sidebar() {
   };
 
   const isStoreKeeper = role === "STORE_KEEPER";
-
-  const isActive = (href) => pathname === href;
-
-  const NavLink = ({ href, icon, children }) => (
-    <Link href={href} className={`cb-nav-link ${isActive(href) ? "active" : ""}`}>
-      <Icon name={icon} />
-      <span>{children}</span>
-    </Link>
-  );
 
   return (
     <aside dir="rtl" className="cb-sidebar">
@@ -100,6 +103,9 @@ export default function Sidebar() {
             <NavLink href="/treasury/advances" icon="users">العهد</NavLink>
             <NavLink href="/treasury/accounts" icon="accounts">البنوك والمحافظ</NavLink>
             <NavLink href="/treasury/reports" icon="reports">التقرير الشامل</NavLink>
+            <div className="cb-nav-separator" />
+            <div className="cb-nav-group-title">الموارد البشرية</div>
+            <NavLink href="/payroll" icon="payroll">رواتب العمال</NavLink>
           </>
         )}
 
